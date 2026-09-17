@@ -1,12 +1,7 @@
-"use client";
-
-import { useState, useEffect } from "react";
-
-const asset =
-  "https://www.figma.com/api/mcp/asset/350920fe-17bd-4c92-99a7-72ab6785ed3d";
-const mark = `${asset}/f6bdc.svg`;
-const searchIcon = `${asset}/203c8.svg`;
-const chevron = `${asset}/d8a7f.svg`;
+import Link from "next/link";
+import SiteHeader from "@/components/layout/SiteHeader";
+import SiteFooter from "@/components/layout/SiteFooter";
+import ShortsSection from "@/components/home/ShortsSection";
 
 const blurb =
   "As climate change makes disasters more frequent and deadly, Nepal must move beyond recovering victims after tragedy and build a modern fire and rescue service capable of saving lives during the critical golden hour.";
@@ -37,20 +32,6 @@ const featuredStories = [
     blurb:
       "Decades of receding ice have uncovered unstable scree and opened deadly new chasms on classic Everest routes, forcing veteran Sherpas to rewrite the rules of Himalayan ascent.",
   },
-];
-
-const navItems = [
-  { title: "Expeditions", slug: "expeditions" },
-  { title: "Environment", slug: "environment" },
-  { title: "Conservation", slug: "conservation" },
-  { title: "Travel", slug: "travel" },
-];
-
-const mediaDropdownItems = [
-  { title: "Dataviz", slug: "dataviz" },
-  { title: "3D", slug: "3d" },
-  { title: "Video", slug: "video" },
-  { title: "Photography", slug: "photography" },
 ];
 
 const categorySections = [
@@ -131,74 +112,15 @@ const latestStories = [
   },
 ];
 
-const shorts = [
-  {
-    title: "High winds whip prayer flags on Renjo La pass at 5,360m",
-    slug: "high-winds-whip-prayer-flags-renjo-la",
-  },
-  {
-    title: "Heavy yak caravan navigates sheer Khumbu cliff trail",
-    slug: "heavy-yak-caravan-navigates-sheer-cliff-trail",
-  },
-  {
-    title: "Rope technicians traverse the knife-edge ridge on Ama Dablam",
-    slug: "rope-technicians-traverse-knife-edge-ridge",
-  },
-  {
-    title: "Rapid thaw exposes deep crevasses beneath Khumbu icefall",
-    slug: "rapid-thaw-exposes-deep-crevasses",
-  },
-  {
-    title: "Sherpa guides celebrate successful acclimatization rotation",
-    slug: "sherpa-guides-celebrate-successful-rotation",
-  },
-];
-
-const footerSections = [
-  { title: "Expeditions", slug: "expeditions" },
-  { title: "Environment", slug: "environment" },
-  { title: "Conservation", slug: "conservation" },
-  { title: "Travel", slug: "travel" },
-  { title: "People & Opinion", slug: "people-and-opinion" },
-  { title: "Video & Shorts", slug: "video-and-shorts" },
-];
-
-const footerAbout = [
-  { title: "Our Story", slug: "our-story" },
-  { title: "Contact Desk", slug: "contact-desk" },
-  { title: "Advertise", slug: "advertise" },
-  { title: "Privacy Policy", slug: "privacy-policy" },
-  { title: "Terms of Service", slug: "terms-of-service" },
-  { title: "Staff Login", slug: "staff-login" },
-];
-
-const footerFollow = [
-  { title: "Instagram", slug: "https://instagram.com" },
-  { title: "Facebook", slug: "https://facebook.com" },
-  { title: "YouTube", slug: "https://youtube.com" },
-  { title: "X (Twitter)", slug: "https://x.com" },
-];
-
 const defaultTags = [
   { title: "Climate", slug: "climate" },
   { title: "Mountaineering", slug: "mountaineering" },
 ];
 
-function Logo({ className = "" }: { className?: string }) {
-  return (
-    <a href="/" className={`logo ${className}`}>
-      <img src={mark} alt="" />
-      <span>
-        <b>EVEREST</b> CHRONICLE
-      </span>
-    </a>
-  );
-}
-
 function Meta() {
   return (
     <div className="meta">
-      <i>July 10, 2026</i>
+      <time>July 10, 2026</time>
       <span>Author name here</span>
     </div>
   );
@@ -229,7 +151,7 @@ function StoryCard({ index = 0 }: { index?: number }) {
       <Placeholder className="card-image" />
       <Tags />
       <h3>
-        <a href={`/articles/${currentStory.slug}`}>{currentStory.title}</a>
+        <Link href={`/${currentStory.slug}`}>{currentStory.title}</Link>
       </h3>
       <p>{blurb}</p>
       <Meta />
@@ -240,75 +162,41 @@ function StoryCard({ index = 0 }: { index?: number }) {
 function Section({ category }: { category: { title: string; slug: string } }) {
   return (
     <section className="section" id={category.slug}>
-      <a className="section-title" href={`#${category.slug}`}>
-        {category.title}
-      </a>
+      <h2 className="section-title">
+        <Link href={`/category/${category.slug}`}>{category.title}</Link>
+      </h2>
       <div className="card-row">
         <StoryCard index={0} />
         <StoryCard index={1} />
         <StoryCard index={2} />
-        <button className="next" aria-label={`More ${category.title}`}>
-          <img src={chevron} alt="" />
-        </button>
+        <Link
+          href={`/category/${category.slug}`}
+          className="next"
+          aria-label={`View all ${category.title} stories`}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </Link>
       </div>
     </section>
   );
 }
 
 export default function Home() {
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 70);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
     <main id="top">
-      {/* Upper tier: Centered Brand Logo */}
-      <div className="header-logo-row">
-        <Logo />
-      </div>
-
-      {/* Lower tier: Sticky Navigation Bar */}
-      <header className={`sticky-nav-bar ${isScrolled ? "is-scrolled" : ""}`}>
-        <div className="nav-wrap">
-          <div className="nav-left">
-            {isScrolled && <Logo className="nav-sticky-logo" />}
-
-            <nav>
-              {navItems.map((item) => (
-                <a href={`#${item.slug}`} key={item.slug}>
-                  {item.title}
-                </a>
-              ))}
-              <div className="nav-dropdown-wrap">
-                <a href="#media" className="nav-dropdown-trigger">
-                  Media
-                </a>
-                <div className="nav-dropdown-menu">
-                  {mediaDropdownItems.map((item) => (
-                    <a href={`#${item.slug}`} key={item.slug}>
-                      {item.title}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </nav>
-          </div>
-
-          <form className="search" onSubmit={(e) => e.preventDefault()}>
-            <input aria-label="Search" placeholder="Search" />
-            <button aria-label="Submit search" type="button">
-              <img src={searchIcon} alt="" />
-            </button>
-          </form>
-        </div>
-      </header>
+      <SiteHeader activeSlug="" />
 
       <div className="page-shell">
         {/* Hero Section */}
@@ -325,15 +213,17 @@ export default function Home() {
         {/* 2-Column Main Section: Left content, Right dedicated to Latest */}
         <div className="home-main-grid">
           {/* Left Column: Featured Story + Expeditions + Environment */}
-          <div className="main-content-col">
-            {/* Featured Stories Wrapper: 2 Items */}
-            <div className="featured-stories-wrap">
+          <div className="main-content-flow">
+            {/* Featured Story Stack */}
+            <div className="featured-story-stack">
               {featuredStories.map((story) => (
                 <article className="featured-story" key={story.slug}>
                   <Placeholder className="featured-image" />
-                  <div className="featured-copy">
-                    <h2>{story.title}</h2>
+                  <div className="feature-copy">
                     <Tags tags={story.tags} />
+                    <h2>
+                      <Link href={`/${story.slug}`}>{story.title}</Link>
+                    </h2>
                     <p>{story.blurb}</p>
                     <Meta />
                   </div>
@@ -349,147 +239,25 @@ export default function Home() {
 
             {/* Conservation Section */}
             <Section category={categorySections[2]} />
-            
-            {/* Shorts Section */}
-            <section className="shorts">
-              <a className="section-title" href="#shorts">
-                Shorts
-              </a>
-              <div className="short-row">
-                {shorts.map((short) => (
-                  <a className="short" href={`#${short.slug}`} key={short.slug}>
-                    <Placeholder />
-                    <b>{short.title}</b>
-                  </a>
-                ))}
-              </div>
-            </section>
+
+            <ShortsSection />
           </div>
 
-          {/* Right Column: Completely reserved for Latest Items */}
+          {/* Right Column: Dedicated to Latest Stories */}
           <aside className="latest-sidebar" aria-label="Latest Stories">
             <h2 className="latest-heading">Latest</h2>
             <div className="latest-headlines">
               {latestStories.map((story, i) => (
-                <a href={`/articles/${story.slug}`} key={story.slug + i}>
+                <Link href={`/${story.slug}`} key={story.slug + i}>
                   {story.title}
-                </a>
+                </Link>
               ))}
             </div>
           </aside>
         </div>
-
       </div>
 
-      {/* Newsletter Section */}
-      <section className="newsletter-section">
-        <div className="newsletter-inner">
-          <span className="newsletter-eyebrow">WEEKLY DISPATCH</span>
-          <h2 className="newsletter-heading">
-            The Himalayas, explained every week.
-          </h2>
-          <p className="newsletter-desc">
-            Expeditions, climate, wildlife, and deep investigative stories
-            delivered directly to your inbox every Thursday morning.
-          </p>
-          <form className="newsletter-form">
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              aria-label="Email address"
-            />
-            <button type="button">SUBSCRIBE</button>
-          </form>
-          <p className="newsletter-disclaimer">
-            Free weekly edition. Zero spam. Unsubscribe anytime.
-          </p>
-        </div>
-      </section>
-
-      {/* Dark Footer */}
-      <footer className="site-footer">
-        <div className="footer-inner">
-          <div className="footer-main">
-            {/* Column 1: Brand & Bio */}
-            <div className="footer-brand">
-              <a
-                href="/"
-                className="footer-logo-link"
-                aria-label="Everest Chronicle"
-              >
-                <img
-                  src="/brand/logo.png"
-                  alt="Everest Chronicle"
-                  className="footer-brand-logo"
-                />
-              </a>
-              <p className="footer-bio">
-                Independent reporting, climate investigation, and authentic
-                visual storytelling from Nepal and across the high Himalayas.
-              </p>
-            </div>
-
-            {/* Column 2: Sections */}
-            <div className="footer-col">
-              <h3 className="footer-col-title">SECTIONS</h3>
-              <div className="footer-nav-list">
-                {footerSections.map((item) => (
-                  <a href={`#${item.slug}`} key={item.slug}>
-                    {item.title}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Column 3: About */}
-            <div className="footer-col">
-              <h3 className="footer-col-title">ABOUT</h3>
-              <div className="footer-nav-list">
-                {footerAbout.map((item) => (
-                  <a href={`#${item.slug}`} key={item.slug}>
-                    {item.title}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Column 4: Follow */}
-            <div className="footer-col">
-              <h3 className="footer-col-title">FOLLOW</h3>
-              <div className="footer-nav-list">
-                {footerFollow.map((item) => (
-                  <a
-                    href={
-                      item.slug.startsWith("http")
-                        ? item.slug
-                        : `#${item.slug}`
-                    }
-                    key={item.title}
-                    target={
-                      item.slug.startsWith("http") ? "_blank" : undefined
-                    }
-                    rel={
-                      item.slug.startsWith("http")
-                        ? "noopener noreferrer"
-                        : undefined
-                    }
-                  >
-                    {item.title}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="footer-bottom">
-            <small>© 2026 Everest Chronicle. All rights reserved.</small>
-            <a href="#top" className="footer-back-to-top">
-              Back to top ↑
-            </a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

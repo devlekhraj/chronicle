@@ -20,7 +20,7 @@ export default function LatestStories({
         {stories.map((story) => (
           <article key={story.id} className="group">
             <Link
-              href={`/articles/${story.slug}`}
+              href={`/${story.slug}`}
               className="block focus:outline-none"
             >
               <h3 className="text-sm sm:text-[15px] font-bold leading-snug text-text-primary group-hover:text-brand transition-colors">

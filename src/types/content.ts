@@ -14,4 +14,6 @@ export interface ShortItem {
   title: string;
   slug: string;
   image?: string;
+  videoUrl?: string;
+  location?: string;
 }

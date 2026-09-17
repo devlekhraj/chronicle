@@ -22,7 +22,7 @@ export default function HeroStory({ story = heroStory }: HeroStoryProps) {
           <div className="flex flex-col justify-center">
             {/* Title on top matching Figma */}
             <Link
-              href={`/articles/${story.slug}`}
+              href={`/${story.slug}`}
               className="group block focus:outline-none mb-3"
             >
               <h1 className="ec-story-heading group-hover:text-[var(--ec-text-brand-strong)] transition-colors">
@@ -55,7 +55,7 @@ export default function HeroStory({ story = heroStory }: HeroStoryProps) {
           {/* Right Column: Large Image (approx. 68%) */}
           <div className="relative w-full overflow-hidden aspect-[16/10] bg-alt-light">
             <Link
-              href={`/articles/${story.slug}`}
+              href={`/${story.slug}`}
               className="group block relative w-full h-full focus:outline-none"
               tabIndex={-1}
               aria-hidden="true"

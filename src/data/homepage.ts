@@ -194,29 +194,71 @@ export const shorts: ShortItem[] = [
     title: "High winds whip prayer flags on Renjo La pass at 5,360m",
     slug: "high-winds-whip-prayer-flags-renjo-la",
     image: "/images/homepage/short-prayer-flags.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Renjo La",
   },
   {
     id: "short-2",
     title: "Heavy yak caravan navigates sheer Khumbu cliff trail",
     slug: "heavy-yak-caravan-navigates-sheer-cliff-trail",
     image: "/images/homepage/short-yak-caravan.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Khumbu",
   },
   {
     id: "short-3",
     title: "Rope technicians traverse the knife-edge ridge on Ama Dablam",
     slug: "rope-technicians-traverse-knife-edge-ridge",
     image: "/images/articles/knife-edge-ridge.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Ama Dablam",
   },
   {
     id: "short-4",
     title: "Rapid thaw exposes deep crevasses beneath Khumbu icefall",
     slug: "rapid-thaw-exposes-deep-crevasses",
     image: "/images/articles/glacier-lake.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Khumbu Icefall",
   },
   {
     id: "short-5",
     title: "Sherpa guides celebrate successful acclimatization rotation",
     slug: "sherpa-guides-celebrate-successful-rotation",
     image: "/images/homepage/sherpa-featured.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Everest Base Camp",
+  },
+  {
+    id: "short-6",
+    title: "Morning light catches fresh snow above Gokyo's upper lakes",
+    slug: "morning-light-catches-fresh-snow-above-gokyo-lakes",
+    image: "/images/articles/glacier-lake.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Gokyo",
+  },
+  {
+    id: "short-7",
+    title: "Rescue helicopter lifts through broken monsoon cloud",
+    slug: "rescue-helicopter-lifts-through-broken-monsoon-cloud",
+    image: "/images/homepage/nepal-rescue.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Rasuwa",
+  },
+  {
+    id: "short-8",
+    title: "Snow leopard camera trap captures a midnight ridge crossing",
+    slug: "snow-leopard-camera-trap-midnight-ridge-crossing",
+    image: "/images/articles/snow-leopard.jpg",
+    videoUrl:
+      "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    location: "Upper Mustang",
   },
 ];

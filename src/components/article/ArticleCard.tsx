@@ -21,7 +21,7 @@ export default function ArticleCard({
       {article.image && (
         <div className="relative w-full aspect-[16/10] overflow-hidden bg-alt-light mb-3.5">
           <Link
-            href={`/articles/${article.slug}`}
+            href={`/${article.slug}`}
             className="block relative w-full h-full focus:outline-none"
             tabIndex={-1}
             aria-hidden="true"
@@ -49,7 +49,7 @@ export default function ArticleCard({
 
       {/* Title */}
       <Link
-        href={`/articles/${article.slug}`}
+        href={`/${article.slug}`}
         className="block focus:outline-none mb-2"
       >
         <h3 className="text-[15px] sm:text-base font-bold leading-snug tracking-tight text-text-primary group-hover:text-brand transition-colors line-clamp-3">

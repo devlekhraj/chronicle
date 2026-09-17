@@ -12,23 +12,23 @@ export interface NavigationItem {
 export const navigationConfig: NavigationItem[] = [
   {
     label: "Expeditions",
-    href: "/expeditions",
+    href: "/category/expeditions",
   },
   {
     label: "Environment",
-    href: "/environment",
+    href: "/category/environment",
   },
   {
     label: "Conservation",
-    href: "/conservation",
+    href: "/category/conservation",
   },
   {
     label: "Travel",
-    href: "/travel",
+    href: "/category/travel",
   },
   {
     label: "Media",
-    href: "/media",
+    href: "/category/media",
     children: [
       {
         label: "Dataviz",

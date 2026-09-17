@@ -156,7 +156,7 @@ export default function Footer() {
             >
               <div className="relative h-14 sm:h-16 w-auto aspect-[827/1024] mb-2">
                 <Image
-                  src="/brand/logo.png"
+                  src="/brand/logo-footer.png"
                   alt="Everest Chronicle"
                   fill
                   sizes="120px"

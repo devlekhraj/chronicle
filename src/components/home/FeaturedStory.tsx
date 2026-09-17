@@ -23,7 +23,7 @@ export default function FeaturedStory({
         {/* Left: Article Image */}
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-alt-light">
           <Link
-            href={`/articles/${story.slug}`}
+            href={`/${story.slug}`}
             className="group block relative w-full h-full focus:outline-none"
             tabIndex={-1}
             aria-hidden="true"
@@ -41,7 +41,7 @@ export default function FeaturedStory({
         {/* Right: Article Content (Title on top, tags below, excerpt, meta) */}
         <div className="flex flex-col justify-center">
           <Link
-            href={`/articles/${story.slug}`}
+            href={`/${story.slug}`}
             className="group block focus:outline-none mb-2.5"
           >
             <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold leading-tight tracking-tight text-text-primary group-hover:text-brand transition-colors">

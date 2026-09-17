@@ -202,12 +202,20 @@ export default function Home() {
         {/* Hero Section */}
         <section className="hero">
           <div className="hero-copy">
-            <h1>{leadStory.title}</h1>
+            <h1>
+              <Link href={`/${leadStory.slug}`}>{leadStory.title}</Link>
+            </h1>
             <Tags />
             <p>{blurb}</p>
             <Meta />
           </div>
-          <Placeholder className="hero-image" />
+          <Link
+            href={`/${leadStory.slug}`}
+            className="hero-image-link"
+            aria-label={leadStory.title}
+          >
+            <Placeholder className="hero-image" />
+          </Link>
         </section>
 
         {/* 2-Column Main Section: Left content, Right dedicated to Latest */}

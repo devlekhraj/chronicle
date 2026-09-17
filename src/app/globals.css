@@ -521,10 +521,14 @@ input[type="button"]:disabled,
 
 .hero h1 {
   font:
-    500 32px/1.2 "Roboto Condensed",
+    600 32px/1.2 "Roboto Condensed",
     sans-serif;
   letter-spacing: -0.64px;
   margin: 0;
+}
+
+.hero h1 a:hover {
+  color: var(--brand);
 }
 
 .hero p,
@@ -537,6 +541,11 @@ input[type="button"]:disabled,
 
 .hero-image {
   height: 333px;
+}
+
+.hero-image-link {
+  display: block;
+  min-width: 0;
 }
 
 .placeholder {

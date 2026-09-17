@@ -63,6 +63,10 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMediaOpen, setIsMobileMediaOpen] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
+
+  // Only show progress bar on article detail pages
+  const isArticlePage = !pathname.startsWith("/category") && pathname !== "/" && pathname !== "";
 
   // Compute active category if not explicitly passed
   const currentCategory =
@@ -81,7 +85,11 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 80);
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 80);
+
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setReadingProgress(docHeight > 0 ? Math.min(100, (scrollY / docHeight) * 100) : 0);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -108,6 +116,18 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
 
       {/* Navigation Bar: Sticky on Desktop, Compact on Mobile */}
       <header className={`sticky-nav-bar ${isScrolled ? "is-scrolled" : ""}`}>
+        {/* Reading Progress Bar */}
+        {isArticlePage && (
+          <div
+            className="reading-progress-bar"
+            style={{ width: `${readingProgress}%` }}
+            role="progressbar"
+            aria-valuenow={Math.round(readingProgress)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Reading progress"
+          />
+        )}
         {/* Mobile Header Bar */}
         <div className="mobile-header-bar">
           <button

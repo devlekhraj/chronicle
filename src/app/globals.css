@@ -313,6 +313,19 @@ input[type="button"]:disabled,
   transition:
     background-color 0.25s ease,
     box-shadow 0.25s ease;
+  /* needed for the progress bar absolute positioning */
+  overflow: visible;
+}
+
+.reading-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--brand);
+  transition: width 0.1s linear;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .sticky-nav-bar.is-scrolled {

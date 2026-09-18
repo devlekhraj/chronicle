@@ -3,12 +3,18 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import SearchModal from "@/components/search/SearchModal";
 
 export const navItems = [
-  { title: "Expeditions", slug: "expeditions" },
-  { title: "Environment", slug: "environment" },
-  { title: "Conservation", slug: "conservation" },
-  { title: "Travel", slug: "travel" },
+  { title: "Home", slug: "home", href: "/" },
+  { title: "Expeditions", slug: "expeditions", href: "/category/expeditions" },
+  { title: "Environment", slug: "environment", href: "/category/environment" },
+  {
+    title: "Conservation",
+    slug: "conservation",
+    href: "/category/conservation",
+  },
+  { title: "Travel", slug: "travel", href: "/category/travel" },
 ];
 
 export const mediaDropdownItems = [
@@ -63,33 +69,41 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMediaOpen, setIsMobileMediaOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
 
   // Only show progress bar on article detail pages
-  const isArticlePage = !pathname.startsWith("/category") && pathname !== "/" && pathname !== "";
+  const isArticlePage =
+    !pathname.startsWith("/category") && pathname !== "/" && pathname !== "";
 
   // Compute active category if not explicitly passed
   const currentCategory =
     activeSlug ||
-    (pathname.startsWith("/category/expeditions")
-      ? "expeditions"
-      : pathname.startsWith("/category/environment")
-        ? "environment"
-        : pathname.startsWith("/category/conservation")
-          ? "conservation"
-          : pathname.startsWith("/category/travel")
-            ? "travel"
-            : pathname.startsWith("/category/media") || pathname.startsWith("/media")
-              ? "media"
-              : "");
+    (pathname === "/"
+      ? "home"
+      : pathname.startsWith("/category/expeditions")
+        ? "expeditions"
+        : pathname.startsWith("/category/environment")
+          ? "environment"
+          : pathname.startsWith("/category/conservation")
+            ? "conservation"
+            : pathname.startsWith("/category/travel")
+              ? "travel"
+              : pathname.startsWith("/category/media") ||
+                  pathname.startsWith("/media")
+                ? "media"
+                : "");
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
       setIsScrolled(scrollY > 80);
 
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setReadingProgress(docHeight > 0 ? Math.min(100, (scrollY / docHeight) * 100) : 0);
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      setReadingProgress(
+        docHeight > 0 ? Math.min(100, (scrollY / docHeight) * 100) : 0,
+      );
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -142,6 +156,50 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
             <span className="hamburger-bar" />
           </button>
           <HorizontalLogo />
+          <div className="mobile-header-actions">
+            <button
+              type="button"
+              className="mobile-action-link"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Find Story"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <span>Find Story</span>
+            </button>
+            <Link
+              href="/login"
+              className="mobile-action-link mobile-action-link--icon-only"
+              aria-label="Login"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </Link>
+          </div>
         </div>
 
         {/* Desktop Navigation Wrap */}
@@ -151,10 +209,13 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
 
             <nav>
               {navItems.map((item) => {
-                const isActive = currentCategory === item.slug;
+                const isActive =
+                  item.slug === "home"
+                    ? pathname === "/"
+                    : currentCategory === item.slug;
                 return (
                   <Link
-                    href={`/category/${item.slug}`}
+                    href={item.href}
                     key={item.slug}
                     className={isActive ? "is-active" : ""}
                   >
@@ -164,7 +225,7 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
               })}
               <div className="nav-dropdown-wrap">
                 <Link
-                href="/category/media"
+                  href="/category/media"
                   className={`nav-dropdown-trigger ${
                     currentCategory === "media" ? "is-active" : ""
                   }`}
@@ -182,23 +243,20 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
             </nav>
           </div>
 
-          <form className="search" role="search" onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="site-search-input" className="sr-only">
-              Search Everest Chronicle
-            </label>
-            <input
-              id="site-search-input"
-              aria-label="Search"
-              placeholder="Search"
-            />
-            <button aria-label="Submit search" type="button">
+          <div className="nav-actions">
+            <button
+              type="button"
+              className="nav-action-link"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Find Story"
+            >
               <svg
-                width="18"
-                height="18"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.2"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 aria-hidden="true"
@@ -206,8 +264,30 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
                 <circle cx="11" cy="11" r="7" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
+              <span>Find Story</span>
             </button>
-          </form>
+
+            <Link
+              href="/login"
+              className={`nav-action-link ${pathname === "/login" ? "is-active" : ""}`}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>Login</span>
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -249,59 +329,42 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
         </div>
 
         <div className="mobile-drawer-search-box">
-          <form
-            className="mobile-drawer-search"
-            role="search"
-            onSubmit={(e) => {
-              e.preventDefault();
+          <button
+            type="button"
+            className="mobile-drawer-search-trigger"
+            onClick={() => {
               setIsMenuOpen(false);
+              setIsSearchOpen(true);
             }}
           >
-            <label htmlFor="drawer-search-input" className="sr-only">
-              Search
-            </label>
-            <input
-              id="drawer-search-input"
-              aria-label="Search"
-              placeholder="Search"
-            />
-            <button aria-label="Submit search" type="submit">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </button>
-          </form>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span>Search stories, authors, topics...</span>
+          </button>
         </div>
 
         <nav className="mobile-drawer-nav">
-          <Link
-            href="/"
-            onClick={() => setIsMenuOpen(false)}
-            className={`mobile-nav-link ${pathname === "/" ? "is-active" : ""}`}
-          >
-            {pathname === "/" ? (
-              <span className="active-indicator">Home</span>
-            ) : (
-              "Home"
-            )}
-          </Link>
           {navItems.map((item) => {
-            const isActive = currentCategory === item.slug;
+            const isActive =
+              item.slug === "home"
+                ? pathname === "/"
+                : currentCategory === item.slug;
             return (
               <Link
                 key={item.slug}
-                href={`/category/${item.slug}`}
+                href={item.href}
                 onClick={() => setIsMenuOpen(false)}
                 className={`mobile-nav-link ${isActive ? "is-active" : ""}`}
               >
@@ -355,8 +418,61 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsMenuOpen(false);
+              setIsSearchOpen(true);
+            }}
+            className="mobile-nav-link mobile-nav-find-link"
+          >
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span>Find Story</span>
+          </button>
+
+          <Link
+            href="/login"
+            onClick={() => setIsMenuOpen(false)}
+            className={`mobile-nav-link mobile-nav-login-link ${pathname === "/login" ? "is-active" : ""}`}
+          >
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>Login</span>
+          </Link>
         </nav>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </>
   );
 }

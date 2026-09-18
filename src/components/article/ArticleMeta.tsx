@@ -1,6 +1,8 @@
+import type { AuthorMeta } from "@/types/content";
+
 interface ArticleMetaProps {
   date?: string;
-  author?: string;
+  author?: string | AuthorMeta;
   className?: string;
 }
 
@@ -9,6 +11,7 @@ export default function ArticleMeta({
   author,
   className = "",
 }: ArticleMetaProps) {
+  const authorName = typeof author === "string" ? author : author?.name;
   return (
     <div className={`flex flex-wrap items-center gap-3 ${className}`}>
       {date && (
@@ -16,9 +19,9 @@ export default function ArticleMeta({
           {date}
         </time>
       )}
-      {author && (
+      {authorName && (
         <span className="ec-author-badge">
-          {author}
+          {authorName}
         </span>
       )}
     </div>

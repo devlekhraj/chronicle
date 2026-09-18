@@ -20,17 +20,17 @@ export default function Newsletter() {
       className="py-16 sm:py-20 lg:py-24 bg-white"
     >
       <Container>
-        <div className="mx-auto max-w-2xl text-center">
-          {/* Centered Heading */}
+        <div className="max-w-2xl text-left">
+          {/* Left-Aligned Heading */}
           <h2
             id="newsletter-heading"
-            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary text-left"
           >
             Subscribe to our newsletter
           </h2>
 
           {/* Supporting Line */}
-          <p className="mt-3 text-sm sm:text-base text-text-secondary leading-relaxed max-w-lg mx-auto">
+          <p className="mt-3 text-sm sm:text-base text-text-secondary leading-relaxed max-w-lg text-left">
             Get the latest Himalayan dispatches, high-altitude expedition
             updates, environmental research, and conservation stories delivered
             directly to your inbox.
@@ -44,7 +44,7 @@ export default function Newsletter() {
           ) : (
             <form
               onSubmit={handleSubmit}
-              className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-0 max-w-lg mx-auto"
+              className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-3 sm:gap-0 max-w-lg"
             >
               <label htmlFor="newsletter-email" className="sr-only">
                 Email address

@@ -8,21 +8,39 @@ export const heroStory: ArticleSummary = {
     "As climate change makes disasters more frequent and deadly, Nepal must move beyond recovering victims after tragedy and build a modern fire and rescue service capable of saving lives during the critical golden hour.",
   categories: ["Climate", "Mountaineering"],
   publishedAt: "July 10, 2026",
-  author: "Author name here",
+  author: "Bikash Sangroula",
+  readTime: "6 min read",
   image: "/images/homepage/nepal-rescue.jpg",
 };
 
-export const featuredStory: ArticleSummary = {
-  id: "featured-1",
-  title: "Sherpas demand stricter safety standards as Everest commercialization peaks",
-  slug: "sherpas-demand-stricter-safety-standards-as-everest-commercialization-peaks",
-  excerpt:
-    "Veteran high-altitude guides call for systemic reform in summit permits and commercial expedition management following unprecedented congestion across the Khumbu Icefall.",
-  categories: ["Expeditions", "Conservation"],
-  publishedAt: "July 9, 2026",
-  author: "Passang Sherpa",
-  image: "/images/homepage/sherpa-featured.jpg",
-};
+export const featuredStories: ArticleSummary[] = [
+  {
+    id: "featured-1",
+    title: "Sherpas demand stricter safety standards as Everest commercialization peaks",
+    slug: "sherpas-demand-stricter-safety-standards-as-everest-commercialization-peaks",
+    excerpt:
+      "Veteran high-altitude guides call for systemic reform in summit permits and commercial expedition management following unprecedented congestion across the Khumbu Icefall.",
+    categories: ["Expeditions", "Conservation"],
+    publishedAt: "July 9, 2026",
+    author: "Passang Sherpa",
+    readTime: "7 min read",
+    image: "/images/homepage/sherpa-featured.jpg",
+  },
+  {
+    id: "featured-2",
+    title: "The vanishing glaciers: How warming is reshaping high-altitude climbing routes",
+    slug: "the-vanishing-glaciers-climbing-routes",
+    excerpt:
+      "Decades of receding ice have uncovered unstable scree and opened deadly new chasms on classic Everest routes, forcing veteran Sherpas to rewrite the rules of Himalayan ascent.",
+    categories: ["Environment", "Glaciology"],
+    publishedAt: "July 9, 2026",
+    author: "Passang Sherpa",
+    readTime: "5 min read",
+    image: "/images/articles/glacier-lake.jpg",
+  },
+];
+
+export const featuredStory: ArticleSummary = featuredStories[0];
 
 export const latestStories: ArticleSummary[] = [
   {
@@ -55,31 +73,31 @@ export const latestStories: ArticleSummary[] = [
   },
   {
     id: "latest-5",
-    title: "Nepal signs rescue pact with airlines, drone and rafting groups for disaster response",
-    slug: "nepal-signs-rescue-pact-disaster-response-round-2",
+    title: "Beyond the Annapurna Circuit: The resurgence of the Nar Phu high trail",
+    slug: "beyond-annapurna-circuit-nar-phu-trail",
     publishedAt: "10 hours ago",
-    categories: ["Expeditions"],
+    categories: ["Travel"],
   },
   {
     id: "latest-6",
-    title: "Nepal to review Everest summit event after corruption complaint",
-    slug: "nepal-to-review-everest-summit-corruption-complaint",
+    title: "High-altitude teahouses adopt solar storage to eliminate kerosene dependency",
+    slug: "teahouses-adopt-solar-storage-eliminate-kerosene",
     publishedAt: "12 hours ago",
-    categories: ["Governance"],
+    categories: ["Travel"],
   },
   {
     id: "latest-7",
-    title: "Monsoon rains paralyse Nepal as landslides block key highways",
-    slug: "monsoon-rains-paralyse-nepal-landslides-update",
+    title: "Video Documentary: The winter guardians of Gokyo Ri",
+    slug: "video-documentary-winter-guardians-gokyo-ri",
     publishedAt: "14 hours ago",
-    categories: ["Environment"],
+    categories: ["Media"],
   },
   {
     id: "latest-8",
-    title: "Flood washes away road to Ghandruk village, stranding hundreds of tourists",
-    slug: "flood-washes-away-road-ghandruk-update",
+    title: "Photo Essay: The high passes of Dolpo in early spring",
+    slug: "photo-essay-high-passes-dolpo-early-spring",
     publishedAt: "16 hours ago",
-    categories: ["Travel"],
+    categories: ["Media"],
   },
 ];
 

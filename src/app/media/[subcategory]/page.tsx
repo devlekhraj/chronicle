@@ -86,14 +86,14 @@ export default async function MediaSubcategoryPage({ params, searchParams }: Pag
 
               <div className="category-article-content">
                 <h2 className="category-article-title">
-                  <Link href={`#${story.slug}`}>{story.title}</Link>
+                  <Link href={`/${story.slug}`}>{story.title}</Link>
                 </h2>
 
                 {story.categories && story.categories.length > 0 && (
                   <div className="category-article-tags">
                     {story.categories.map((tag) => (
-                      <span key={tag} className="category-tag-pill">
-                        {tag}
+                      <span key={typeof tag === "string" ? tag : tag.slug} className="category-tag-pill">
+                        {typeof tag === "string" ? tag : tag.title}
                       </span>
                     ))}
                   </div>
@@ -111,7 +111,7 @@ export default async function MediaSubcategoryPage({ params, searchParams }: Pag
                   )}
                   {story.author && (
                     <span className="category-author-badge">
-                      {story.author}
+                      {typeof story.author === "string" ? story.author : story.author.name}
                     </span>
                   )}
                 </div>

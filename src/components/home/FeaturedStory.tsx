@@ -52,7 +52,10 @@ export default function FeaturedStory({
           {story.categories && story.categories.length > 0 && (
             <div className="ec-story-tags mb-3">
               {story.categories.map((category) => (
-                <CategoryTag key={category} label={category} />
+                <CategoryTag
+                  key={typeof category === "string" ? category : category.slug || category.title}
+                  label={category}
+                />
               ))}
             </div>
           )}

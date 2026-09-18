@@ -88,11 +88,15 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
                 {story.categories && story.categories.length > 0 && (
                   <div className="category-article-tags">
-                    {story.categories.map((tag) => (
-                      <span key={tag} className="category-tag-pill">
-                        {tag}
-                      </span>
-                    ))}
+                    {story.categories.map((tag) => {
+                      const tagKey = typeof tag === "string" ? tag : tag.slug;
+                      const tagLabel = typeof tag === "string" ? tag : tag.title;
+                      return (
+                        <span key={tagKey} className="category-tag-pill">
+                          {tagLabel}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
 
@@ -108,7 +112,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   )}
                   {story.author && (
                     <span className="category-author-badge">
-                      {story.author}
+                      {typeof story.author === "string" ? story.author : story.author.name}
                     </span>
                   )}
                 </div>

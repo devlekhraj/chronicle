@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SiteHeader from "@/components/layout/SiteHeader";
+import type { AuthorMeta } from "@/types/content";
+import { authorSlugFromName } from "@/data/authors";
 import {
   type ArticleBodyBlock,
   articleRegistry,
@@ -13,11 +15,22 @@ interface PageProps {
 }
 
 function getArticle(slug: string) {
-  return articleRegistry[slug] ?? {
-    ...fallbackArticle,
-    slug,
-    title: fallbackArticle.title,
-  };
+  return (
+    articleRegistry[slug] ?? {
+      ...fallbackArticle,
+      slug,
+      title: fallbackArticle.title,
+    }
+  );
+}
+
+function formatAuthors(authors?: AuthorMeta[]): string {
+  if (!authors || authors.length === 0) return "Everest Chronicle Desk";
+  const names = authors.map((a) => a.name).filter(Boolean);
+  if (names.length === 0) return "Everest Chronicle Desk";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
 function ArticleBodyBlockView({
@@ -90,28 +103,17 @@ function ArticleBodyBlockView({
               role="img"
             />
           )}
-          {block.caption && <figcaption>{block.caption}</figcaption>}
+          {(block.caption || block.credit) && (
+            <figcaption>
+              <span>{block.caption}</span>
+              {block.credit && (
+                <span className="article-photo-credit"> | {block.credit}</span>
+              )}
+            </figcaption>
+          )}
         </figure>
       );
     }
-    case "authorBios":
-      return (
-        <section className="article-author-bios" aria-label="Authors">
-          {block.authors.map((author, authorIndex) => (
-            <div className="article-author-bio" key={`${author.name}-${authorIndex}`}>
-              {author.image ? (
-                <img src={author.image} alt="" loading="lazy" decoding="async" />
-              ) : (
-                <div className="article-author-placeholder" aria-hidden="true" />
-              )}
-              <div>
-                <h2>{author.name}</h2>
-                <p>{author.bio}</p>
-              </div>
-            </div>
-          ))}
-        </section>
-      );
     default:
       return null;
   }
@@ -120,15 +122,44 @@ function ArticleBodyBlockView({
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { article_slug } = await params;
   const article = getArticle(article_slug);
+  const authorName =
+    article.authors && article.authors.length > 0
+      ? article.authors.map((a) => a.name).join(", ")
+      : "Everest Chronicle Desk";
+
+  const title = article.meta?.metaTitle || `${article.title} | Everest Chronicle`;
+  const description = article.meta?.metaDescription || article.dek;
+  const ogImage =
+    article.meta?.ogImage || article.image || "/images/homepage/nepal-rescue.jpg";
 
   return {
-    title: `${article.title} | Everest Chronicle`,
-    description: article.dek,
+    title,
+    description,
+    keywords: article.meta?.keywords,
+    authors:
+      article.authors && article.authors.length > 0
+        ? article.authors.map((a) => ({ name: a.name }))
+        : [{ name: authorName }],
     openGraph: {
-      title: `${article.title} | Everest Chronicle`,
-      description: article.dek,
+      title,
+      description,
       type: "article",
       url: `https://everestchronicle.com/${article.slug}`,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
+      publishedTime: article.publishedAt,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }
@@ -136,31 +167,56 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ArticlePage({ params }: PageProps) {
   const { article_slug } = await params;
   const article = getArticle(article_slug);
+  const formattedAuthors = formatAuthors(article.authors);
 
   // Build ordered list of all registered articles for prev/next
   const allSlugs = Object.keys(articleRegistry);
   const currentIndex = allSlugs.indexOf(article_slug);
   const prevSlug = currentIndex > 0 ? allSlugs[currentIndex - 1] : null;
-  const nextSlug = currentIndex !== -1 && currentIndex < allSlugs.length - 1 ? allSlugs[currentIndex + 1] : null;
+  const nextSlug =
+    currentIndex !== -1 && currentIndex < allSlugs.length - 1
+      ? allSlugs[currentIndex + 1]
+      : null;
   const prevArticle = prevSlug ? articleRegistry[prevSlug] : null;
   const nextArticle = nextSlug ? articleRegistry[nextSlug] : null;
 
-  // Related articles: same category, exclude current, up to 3
-  const currentCategorySlugs = new Set(article.categories.map((c) => c.slug));
-  const related = Object.values(articleRegistry)
-    .filter((a) => {
-      if (a.slug === article_slug) return false;
-      return a.categories.some((c) => currentCategorySlugs.has(c.slug));
-    })
-    .slice(0, 4);
+  // Related articles (4 items in a row)
+  const RELATED_LIMIT = 4;
+  const relatedList: typeof articleRegistry[string][] = [];
+  const addedSlugs = new Set<string>([article.slug]);
 
-  // Fallback: if fewer than 4 related, fill with any other articles
-  if (related.length < 4) {
-    const relatedSlugs = new Set(related.map((a) => a.slug));
-    const extras = Object.values(articleRegistry)
-      .filter((a) => a.slug !== article_slug && !relatedSlugs.has(a.slug))
-      .slice(0, 4 - related.length);
-    related.push(...extras);
+  // 1. If explicit relatedSlugs are defined, prioritize them
+  if (article.relatedSlugs && article.relatedSlugs.length > 0) {
+    for (const slug of article.relatedSlugs) {
+      if (articleRegistry[slug] && !addedSlugs.has(slug)) {
+        relatedList.push(articleRegistry[slug]);
+        addedSlugs.add(slug);
+        if (relatedList.length >= RELATED_LIMIT) break;
+      }
+    }
+  }
+
+  // 2. Add articles in matching categories
+  if (relatedList.length < RELATED_LIMIT) {
+    const currentCategorySlugs = new Set(article.categories.map((c) => c.slug));
+    for (const item of Object.values(articleRegistry)) {
+      if (!addedSlugs.has(item.slug) && item.categories.some((c) => currentCategorySlugs.has(c.slug))) {
+        relatedList.push(item);
+        addedSlugs.add(item.slug);
+        if (relatedList.length >= RELATED_LIMIT) break;
+      }
+    }
+  }
+
+  // 3. Fallback to any remaining articles
+  if (relatedList.length < RELATED_LIMIT) {
+    for (const item of Object.values(articleRegistry)) {
+      if (!addedSlugs.has(item.slug)) {
+        relatedList.push(item);
+        addedSlugs.add(item.slug);
+        if (relatedList.length >= RELATED_LIMIT) break;
+      }
+    }
   }
 
   const shareUrl = `https://everestchronicle.com/${article.slug}`;
@@ -182,21 +238,47 @@ export default async function ArticlePage({ params }: PageProps) {
 
           <h1>{article.title}</h1>
           <p className="article-detail-dek">{article.dek}</p>
+
+          <div className="article-header-meta">
+            <time dateTime={article.publishedAt} className="article-meta-date">
+              {article.publishedAt}
+            </time>
+            <span className="article-meta-sep" aria-hidden="true">|</span>
+            <span className="article-meta-author">
+              {article.authors && article.authors.length > 0 ? (
+                article.authors.map((auth, idx) => {
+                  const authorSlug = auth.slug || authorSlugFromName(auth.name);
+                  return (
+                    <span key={auth.name || idx}>
+                      {idx > 0 && (idx === article.authors.length - 1 ? " and " : ", ")}
+                      <Link href={`/author/${authorSlug}`} className="article-author-link">
+                        {auth.name}
+                      </Link>
+                    </span>
+                  );
+                })
+              ) : (
+                <span>Everest Chronicle Desk</span>
+              )}
+            </span>
+          </div>
         </header>
 
         <figure className="article-hero-figure">
           {article.image ? (
-            <img src={article.image} alt="" loading="eager" decoding="async" />
+            <img src={article.image} alt={article.title} loading="eager" decoding="async" />
           ) : (
             <div className="article-hero-placeholder" aria-hidden="true" />
           )}
-          <figcaption>{article.caption}</figcaption>
+          {(article.caption || article.credit) && (
+            <figcaption>
+              <span>{article.caption}</span>
+              {article.credit && (
+                <span className="article-photo-credit"> | {article.credit}</span>
+              )}
+            </figcaption>
+          )}
         </figure>
-
-        <div className="article-detail-meta">
-          <time>{article.publishedAt}</time>
-          <span>{article.author}</span>
-        </div>
 
         <div className="article-body">
           {article.body.map((block, index) => (
@@ -221,9 +303,9 @@ export default async function ArticlePage({ params }: PageProps) {
             aria-label="Share on X (Twitter)"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
-            <span>X / Twitter</span>
+            <span>Share</span>
           </a>
           <a
             id="share-facebook"
@@ -285,34 +367,40 @@ export default async function ArticlePage({ params }: PageProps) {
         </nav>
       )}
 
-      {/* ── Related Articles ───────────────────────────────────────── */}
-      {related.length > 0 && (
+      {/* ── Related Articles (6 items) ────────────────────────────── */}
+      {relatedList.length > 0 && (
         <section className="article-related" aria-label="Related articles">
           <div className="article-related-inner">
             <h2 className="article-related-heading">Related Articles</h2>
-            <div className="card-row--4">
-              {related.map((rel) => (
-                <article className="card" key={rel.slug}>
-                  <Link href={`/${rel.slug}`} className="card-image-link" tabIndex={-1} aria-hidden="true">
-                    {rel.image
-                      ? <img src={rel.image} alt="" loading="lazy" decoding="async" className="card-image" />
-                      : <div className="card-image" aria-hidden="true" />}
-                  </Link>
-                  <div className="tags">
-                    {rel.categories.map((c) => (
-                      <span key={c.slug}>{c.title}</span>
-                    ))}
-                  </div>
-                  <h3>
-                    <Link href={`/${rel.slug}`}>{rel.title}</Link>
-                  </h3>
-                  <p>{rel.dek}</p>
-                  <div className="meta">
-                    <time>{rel.publishedAt}</time>
-                    <span>{rel.author}</span>
-                  </div>
-                </article>
-              ))}
+            <div className="article-related-grid">
+              {relatedList.map((rel) => {
+                const relAuthorName =
+                  rel.authors?.[0]?.name ?? "Everest Chronicle Desk";
+                return (
+                  <article className="card" key={rel.slug}>
+                    <Link href={`/${rel.slug}`} className="card-image-link" tabIndex={-1} aria-hidden="true">
+                      {rel.image ? (
+                        <img src={rel.image} alt={rel.title} loading="lazy" decoding="async" className="card-image" />
+                      ) : (
+                        <div className="placeholder card-image" aria-hidden="true" />
+                      )}
+                    </Link>
+                    <div className="tags">
+                      {rel.categories.map((c, cIdx) => (
+                        <span key={`${c.slug}-${c.title}-${cIdx}`}>{c.title}</span>
+                      ))}
+                    </div>
+                    <h3>
+                      <Link href={`/${rel.slug}`}>{rel.title}</Link>
+                    </h3>
+                    <p>{rel.dek}</p>
+                    <div className="meta">
+                      <time>{rel.publishedAt}</time>
+                      <span>{relAuthorName}</span>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>

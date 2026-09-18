@@ -2,173 +2,99 @@ import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import ShortsSection from "@/components/home/ShortsSection";
-
-const blurb =
-  "As climate change makes disasters more frequent and deadly, Nepal must move beyond recovering victims after tragedy and build a modern fire and rescue service capable of saving lives during the critical golden hour.";
-
-const leadStory = {
-  title: "Nepal's next rescue should not be a body recovery",
-  slug: "nepals-next-rescue-should-not-be-a-body-recovery",
-};
-
-const featuredStories = [
-  {
-    title: "Nepal's next rescue should not be a body recovery",
-    slug: "nepals-next-rescue-should-not-be-a-body-recovery",
-    tags: [
-      { title: "Climate", slug: "climate" },
-      { title: "Rasuwa Floods 2026", slug: "rasuwa-floods-2026" },
-    ],
-    blurb:
-      "As climate change makes disasters more frequent and deadly, Nepal must move beyond recovering victims after tragedy and build a modern fire and rescue service capable of saving lives during the critical golden hour.",
-  },
-  {
-    title: "The vanishing glaciers: How warming is reshaping high-altitude climbing routes",
-    slug: "the-vanishing-glaciers-climbing-routes",
-    tags: [
-      { title: "Expeditions", slug: "expeditions" },
-      { title: "Glaciology", slug: "glaciology" },
-    ],
-    blurb:
-      "Decades of receding ice have uncovered unstable scree and opened deadly new chasms on classic Everest routes, forcing veteran Sherpas to rewrite the rules of Himalayan ascent.",
-  },
-];
+import {
+  heroStory,
+  featuredStories,
+  latestStories,
+  expeditionStories,
+  environmentStories,
+  conservationStories,
+} from "@/data/homepage";
+import type { ArticleSummary } from "@/types/content";
 
 const categorySections = [
-  { title: "Expeditions", slug: "expeditions" },
-  { title: "Environment", slug: "environment" },
-  { title: "Conservation", slug: "conservation" },
+  { title: "Expeditions", slug: "expeditions", stories: expeditionStories },
+  { title: "Environment", slug: "environment", stories: environmentStories },
+  { title: "Conservation", slug: "conservation", stories: conservationStories },
 ];
 
-const storyCards = [
-  {
-    title: "Nepal's next rescue should not be a body recovery",
-    slug: "nepals-next-rescue-should-not-be-a-body-recovery",
-  },
-  {
-    title: "The changing face of Himalayan expeditions",
-    slug: "changing-face-of-himalayan-expeditions",
-  },
-  {
-    title: "What it takes to protect a mountain ecosystem",
-    slug: "what-it-takes-to-protect-a-mountain-ecosystem",
-  },
-];
-
-const latestStories = [
-  {
-    title:
-      "Nepal signs rescue pact with airlines, drone and rafting groups for disaster response",
-    slug: "nepal-signs-rescue-pact-with-airlines-drone-and-rafting-groups",
-  },
-  {
-    title: "Nepal to review Everest summit event after corruption complaint",
-    slug: "nepal-to-review-everest-summit-event-after-corruption-complaint",
-  },
-  {
-    title: "Monsoon rains paralyse Nepal as landslides block key highways",
-    slug: "monsoon-rains-paralyse-nepal-as-landslides-block-key-highways",
-  },
-  {
-    title:
-      "Flood washes away road to Ghandruk village, stranding hundreds of tourists",
-    slug: "flood-washes-away-road-to-ghandruk-village-stranding-tourists",
-  },
-  {
-    title:
-      "Nepal signs rescue pact with airlines, drone and rafting groups for disaster response",
-    slug: "nepal-signs-rescue-pact-disaster-response-round-2",
-  },
-  {
-    title: "Nepal to review Everest summit event after corruption complaint",
-    slug: "nepal-to-review-everest-summit-corruption-complaint",
-  },
-  {
-    title: "Monsoon rains paralyse Nepal as landslides block key highways",
-    slug: "monsoon-rains-paralyse-nepal-landslides-update",
-  },
-  {
-    title:
-      "Flood washes away road to Ghandruk village, stranding hundreds of tourists",
-    slug: "flood-washes-away-road-ghandruk-update",
-  },
-  {
-    title:
-      "Nepal signs rescue pact with airlines, drone and rafting groups for disaster response",
-    slug: "nepal-signs-rescue-pact-disaster-response-round-3",
-  },
-  {
-    title: "Nepal to review Everest summit event after corruption complaint",
-    slug: "nepal-to-review-everest-summit-event-inquiry",
-  },
-  {
-    title: "Monsoon rains paralyse Nepal as landslides block key highways",
-    slug: "monsoon-rains-paralyse-nepal-highways-blocked",
-  },
-  {
-    title:
-      "Flood washes away road to Ghandruk village, stranding hundreds of tourists",
-    slug: "flood-washes-away-road-to-ghandruk-stranding-hundreds",
-  },
-];
-
-const defaultTags = [
-  { title: "Climate", slug: "climate" },
-  { title: "Mountaineering", slug: "mountaineering" },
-];
-
-function Meta() {
+function Meta({
+  date = "July 10, 2026",
+  author = "Everest Chronicle",
+}: {
+  date?: string;
+  author?: string | { name: string };
+}) {
+  const authorName =
+    typeof author === "string" ? author : author?.name || "Everest Chronicle";
   return (
     <div className="meta">
-      <time>July 10, 2026</time>
-      <span>Author name here</span>
+      <time>{date}</time>
+      <span>{authorName}</span>
     </div>
   );
 }
 
 function Tags({
-  tags = defaultTags,
+  tags = ["Climate", "Mountaineering"],
 }: {
-  tags?: { title: string; slug: string }[];
+  tags?: (string | { title: string; slug: string })[];
 }) {
   return (
     <div className="tags">
-      {tags.map((tag) => (
-        <span key={tag.slug}>{tag.title}</span>
-      ))}
+      {tags.map((tag) => {
+        const title = typeof tag === "string" ? tag : tag.title;
+        const key = typeof tag === "string" ? tag : tag.slug;
+        return <span key={key}>{title}</span>;
+      })}
     </div>
   );
 }
 
-function Placeholder({ className = "" }: { className?: string }) {
-  return <div className={`placeholder ${className}`} aria-hidden="true" />;
-}
-
-function StoryCard({ index = 0 }: { index?: number }) {
-  const currentStory = storyCards[index % storyCards.length];
+function StoryCard({ story }: { story: ArticleSummary }) {
   return (
     <article className="card">
-      <Placeholder className="card-image" />
-      <Tags />
+      <Link
+        href={`/${story.slug}`}
+        className="card-image-link"
+        aria-label={story.title}
+      >
+        {story.image ? (
+          <img
+            src={story.image}
+            alt={story.title}
+            className="card-image"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div className="placeholder card-image" aria-hidden="true" />
+        )}
+      </Link>
+      <Tags tags={story.categories} />
       <h3>
-        <Link href={`/${currentStory.slug}`}>{currentStory.title}</Link>
+        <Link href={`/${story.slug}`}>{story.title}</Link>
       </h3>
-      <p>{blurb}</p>
-      <Meta />
+      {story.excerpt && <p>{story.excerpt}</p>}
+      <Meta date={story.publishedAt} author={story.author} />
     </article>
   );
 }
 
-function Section({ category }: { category: { title: string; slug: string } }) {
+function Section({
+  category,
+}: {
+  category: { title: string; slug: string; stories: ArticleSummary[] };
+}) {
   return (
     <section className="section" id={category.slug}>
       <h2 className="section-title">
         <Link href={`/category/${category.slug}`}>{category.title}</Link>
       </h2>
       <div className="card-row">
-        <StoryCard index={0} />
-        <StoryCard index={1} />
-        <StoryCard index={2} />
+        {category.stories.slice(0, 3).map((story) => (
+          <StoryCard key={story.id || story.slug} story={story} />
+        ))}
         <Link
           href={`/category/${category.slug}`}
           className="next"
@@ -203,37 +129,66 @@ export default function Home() {
         <section className="hero">
           <div className="hero-copy">
             <h1>
-              <Link href={`/${leadStory.slug}`}>{leadStory.title}</Link>
+              <Link href={`/${heroStory.slug}`}>{heroStory.title}</Link>
             </h1>
-            <Tags />
-            <p>{blurb}</p>
-            <Meta />
+            <Tags tags={heroStory.categories} />
+            <p>{heroStory.excerpt}</p>
+            <Meta date={heroStory.publishedAt} author={heroStory.author} />
           </div>
           <Link
-            href={`/${leadStory.slug}`}
+            href={`/${heroStory.slug}`}
             className="hero-image-link"
-            aria-label={leadStory.title}
+            aria-label={heroStory.title}
           >
-            <Placeholder className="hero-image" />
+            {heroStory.image ? (
+              <img
+                src={heroStory.image}
+                alt={heroStory.title}
+                className="hero-image"
+                loading="eager"
+                decoding="async"
+              />
+            ) : (
+              <div className="placeholder hero-image" aria-hidden="true" />
+            )}
           </Link>
         </section>
 
         {/* 2-Column Main Section: Left content, Right dedicated to Latest */}
         <div className="home-main-grid">
-          {/* Left Column: Featured Story + Expeditions + Environment */}
+          {/* Left Column: Featured Story + Expeditions + Environment + Conservation */}
           <div className="main-content-flow">
             {/* Featured Story Stack */}
             <div className="featured-story-stack">
               {featuredStories.map((story) => (
                 <article className="featured-story" key={story.slug}>
-                  <Placeholder className="featured-image" />
+                  <Link
+                    href={`/${story.slug}`}
+                    className="featured-image-link"
+                    aria-label={story.title}
+                  >
+                    {story.image ? (
+                      <img
+                        src={story.image}
+                        alt={story.title}
+                        className="featured-image"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div
+                        className="placeholder featured-image"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </Link>
                   <div className="feature-copy">
-                    <Tags tags={story.tags} />
+                    <Tags tags={story.categories} />
                     <h2>
                       <Link href={`/${story.slug}`}>{story.title}</Link>
                     </h2>
-                    <p>{story.blurb}</p>
-                    <Meta />
+                    {story.excerpt && <p>{story.excerpt}</p>}
+                    <Meta date={story.publishedAt} author={story.author} />
                   </div>
                 </article>
               ))}

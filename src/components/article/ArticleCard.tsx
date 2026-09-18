@@ -42,7 +42,10 @@ export default function ArticleCard({
       {article.categories && article.categories.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 mb-2">
           {article.categories.map((category) => (
-            <CategoryTag key={category} label={category} />
+            <CategoryTag
+              key={typeof category === "string" ? category : category.slug || category.title}
+              label={category}
+            />
           ))}
         </div>
       )}

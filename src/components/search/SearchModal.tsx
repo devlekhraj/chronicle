@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { articleRegistry, type ArticleDetail } from "@/data/articles";
 import { authorRegistry } from "@/data/authors";
@@ -24,7 +25,12 @@ const POPULAR_TOPICS = [
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Focus input on open and lock body scroll
   useEffect(() => {
@@ -54,7 +60,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const trimmed = query.trim().toLowerCase();
 
@@ -85,19 +91,30 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const hasResults = matchingAuthors.length > 0 || matchingArticles.length > 0;
 
-  return (
+  return createPortal(
     <div
-      className="search-modal-backdrop"
+      className="search-modal-root"
       role="dialog"
       aria-modal="true"
       aria-label="Search Everest Chronicle"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
     >
-      <div className="search-modal-container">
+      {/* Dedicated backdrop element purely for the blurry background */}
+      <div
+        className="search-modal-backdrop"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Centering & scroll container */}
+      <div
+        className="search-modal-wrapper"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
+      >
+        <div className="search-modal-container">
         {/* Header / Input Row */}
         <div className="search-modal-header">
           <div className="search-input-wrap">
@@ -283,5 +300,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
       </div>
     </div>
-  );
+  </div>,
+  document.body
+);
 }

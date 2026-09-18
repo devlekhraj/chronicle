@@ -641,28 +641,37 @@ button.mobile-drawer-search-trigger svg,
 /* ==========================================================================
    Search Modal
    ========================================================================== */
+.search-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+}
+
+/* Dedicated Tailwind Blur Backdrop */
 .search-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  background-color: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 1;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  will-change: backdrop-filter;
+  cursor: pointer;
+}
+
+/* Scrollable container for modal */
+.search-modal-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 60px 16px 40px;
   overflow-y: auto;
-  animation: searchModalFadeIn 0.2s ease-out;
-}
-
-@keyframes searchModalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  -webkit-overflow-scrolling: touch;
 }
 
 .search-modal-container {
@@ -670,11 +679,14 @@ button.mobile-drawer-search-trigger svg,
   max-width: 720px;
   background: #ffffff;
   border-radius: 4px;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 100px);
+  position: relative;
   animation: searchModalSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

@@ -1,13 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SearchModal from "@/components/search/SearchModal";
+import type { NavigationItem } from "@/lib/ec-api";
 
-export const navItems = [
+interface HeaderNavItem {
+  title: string;
+  slug: string;
+  href: string;
+  children?: HeaderNavItem[];
+}
+
+export const fallbackNavItems: HeaderNavItem[] = [
   { title: "Home", slug: "home", href: "/" },
-  { title: "Expeditions", slug: "expeditions", href: "/category/expeditions" },
+  { title: "Expedition", slug: "expedition", href: "/category/expedition" },
   { title: "Environment", slug: "environment", href: "/category/environment" },
   {
     title: "Conservation",
@@ -17,12 +25,35 @@ export const navItems = [
   { title: "Travel", slug: "travel", href: "/category/travel" },
 ];
 
-export const mediaDropdownItems = [
-  { title: "Dataviz", slug: "dataviz" },
-  { title: "3D", slug: "3d" },
-  { title: "Video", slug: "video" },
-  { title: "Photography", slug: "photography" },
+export const fallbackMediaDropdownItems: HeaderNavItem[] = [
+  { title: "Dataviz", slug: "dataviz", href: "/media/dataviz" },
+  { title: "3D", slug: "3d", href: "/media/3d" },
+  { title: "Video", slug: "video", href: "/media/video" },
+  { title: "Photography", slug: "photography", href: "/media/photography" },
 ];
+
+
+function navItemSlug(item: { href: string; title?: string; label?: string }) {
+  const slug = item.href.split("/").filter(Boolean).pop();
+
+  return slug || (item.title || item.label || "").toLowerCase().replace(/\s+/g, "-");
+}
+
+function normalizeNavItems(items: NavigationItem[]): HeaderNavItem[] {
+  return [
+    { title: "Home", slug: "home", href: "/" },
+    ...items.map((item) => ({
+      title: item.label,
+      slug: navItemSlug(item),
+      href: item.href,
+      children: item.children?.map((child) => ({
+        title: child.label,
+        slug: navItemSlug(child),
+        href: child.href,
+      })),
+    })),
+  ];
+}
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
@@ -62,15 +93,26 @@ export function HorizontalLogo({ className = "" }: { className?: string }) {
 
 interface SiteHeaderProps {
   activeSlug?: string;
+  navigationItems?: NavigationItem[];
 }
 
-export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
+export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderProps) {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMediaOpen, setIsMobileMediaOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+  const navItems = useMemo(
+    () => navigationItems && navigationItems.length > 0
+      ? normalizeNavItems(navigationItems)
+      : fallbackNavItems,
+    [navigationItems],
+  );
+
+  const mediaNavItem = navItems.find((item) => item.children && item.children.length > 0);
+  const mediaDropdownItems = mediaNavItem?.children ?? fallbackMediaDropdownItems;
+  const primaryNavItems = navItems.filter((item) => item.slug === "home" || item !== mediaNavItem);
 
   // Only show progress bar on article detail pages
   const isArticlePage =
@@ -81,18 +123,11 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
     activeSlug ||
     (pathname === "/"
       ? "home"
-      : pathname.startsWith("/category/expeditions")
-        ? "expeditions"
-        : pathname.startsWith("/category/environment")
-          ? "environment"
-          : pathname.startsWith("/category/conservation")
-            ? "conservation"
-            : pathname.startsWith("/category/travel")
-              ? "travel"
-              : pathname.startsWith("/category/media") ||
-                  pathname.startsWith("/media")
-                ? "media"
-                : "");
+      : pathname.startsWith("/category/")
+        ? pathname.split("/")[2] || ""
+        : pathname.startsWith("/media")
+          ? "media"
+          : "");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -208,7 +243,7 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
             {isScrolled && <Logo className="nav-sticky-logo" />}
 
             <nav>
-              {navItems.map((item) => {
+              {primaryNavItems.map((item) => {
                 const isActive =
                   item.slug === "home"
                     ? pathname === "/"
@@ -225,16 +260,16 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
               })}
               <div className="nav-dropdown-wrap">
                 <Link
-                  href="/category/media"
+                  href={mediaNavItem?.href ?? "/category/media"}
                   className={`nav-dropdown-trigger ${
-                    currentCategory === "media" ? "is-active" : ""
+                    currentCategory === (mediaNavItem?.slug ?? "media") ? "is-active" : ""
                   }`}
                 >
-                  Media
+                  {mediaNavItem?.title ?? "Media"}
                 </Link>
                 <div className="nav-dropdown-menu">
                   {mediaDropdownItems.map((item) => (
-                    <Link href={`/media/${item.slug}`} key={item.slug}>
+                    <Link href={item.href} key={item.slug}>
                       {item.title}
                     </Link>
                   ))}
@@ -356,7 +391,7 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
         </div>
 
         <nav className="mobile-drawer-nav">
-          {navItems.map((item) => {
+          {primaryNavItems.map((item) => {
             const isActive =
               item.slug === "home"
                 ? pathname === "/"
@@ -404,7 +439,7 @@ export default function SiteHeader({ activeSlug }: SiteHeaderProps) {
               <div className="mobile-subnav-list">
                 {mediaDropdownItems.map((item) => (
                   <Link
-                    href={`/media/${item.slug}`}
+                    href={item.href}
                     key={item.slug}
                     onClick={() => {
                       setIsMenuOpen(false);

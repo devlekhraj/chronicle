@@ -1,25 +1,6 @@
-import type { AuthorMeta, SeoMeta } from "@/types/content";
+import type { ArticleBodyBlock, AuthorMeta, SeoMeta } from "@/types/content";
 
-export type ArticleBodyBlock =
-  | { type: "heading"; text: string }
-  | { type: "paragraph"; text: string }
-  | {
-      type: "imageGrid";
-      images: { src?: string; alt: string }[];
-      caption?: string;
-    }
-  | {
-      type: "wideImage";
-      image?: { src?: string; alt: string };
-      caption?: string;
-      credit?: string;
-    }
-  | {
-      type: "fullWideImage";
-      image?: { src?: string; alt: string };
-      caption?: string;
-      credit?: string;
-    };
+export type { ArticleBodyBlock };
 
 export interface ArticleDetail {
   id?: string;

@@ -26,7 +26,7 @@ export default function BrandLogo({ className = "" }: BrandLogoProps) {
       <span className="inline-flex items-center tracking-[-0.02em] uppercase leading-[1.2]">
         <span style={{ color: "var(--ec-brand-100)" }}>EVEREST</span>
         <span className="ml-1.5" style={{ color: "var(--ec-dark-100)" }}>
-          CHRONICLE
+          CHRONICLE kk
         </span>
       </span>
     </Link>

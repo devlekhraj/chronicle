@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import Image from "next/image";
 import { articleRegistry, type ArticleDetail } from "@/data/articles";
 import { authorRegistry } from "@/data/authors";
 import type { AuthorProfile } from "@/types/content";
@@ -36,15 +37,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      document.body.classList.add("modal-backdrop-open");
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 50);
       return () => {
         clearTimeout(timer);
         document.body.style.overflow = "";
+        document.body.classList.remove("modal-backdrop-open");
       };
     } else {
       document.body.style.overflow = "";
+      document.body.classList.remove("modal-backdrop-open");
       setQuery("");
     }
   }, [isOpen]);
@@ -100,7 +104,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     >
       {/* Dedicated backdrop element purely for the blurry background */}
       <div
-        className="search-modal-backdrop"
+        className="search-modal-backdrop app-modal-backdrop bg-slate-950/30 backdrop-blur-xl"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -115,60 +119,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         }}
       >
         <div className="search-modal-container">
-        {/* Header / Input Row */}
-        <div className="search-modal-header">
-          <div className="search-input-wrap">
-            <svg
-              className="search-input-icon"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-
-            <input
-              ref={inputRef}
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search stories, authors, topics..."
-              className="search-modal-input"
-              aria-label="Search query"
-            />
-
-            {query && (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  inputRef.current?.focus();
-                }}
-                className="search-clear-btn"
-                aria-label="Clear search query"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
+          {/* Close Icon - Top Right */}
           <button
             type="button"
             onClick={onClose}
             className="search-modal-close-btn"
             aria-label="Close search modal"
           >
-            <span>ESC</span>
             <svg
-              width="18"
-              height="18"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -181,10 +141,65 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-        </div>
 
-        {/* Modal Body / Results */}
-        <div className="search-modal-body">
+          {/* Modal Body */}
+          <div className="search-modal-body">
+            {/* Centered Search Input (~300px width) */}
+            <div className="search-input-wrap">
+              <svg
+                className="search-input-icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search stories, authors, topics..."
+                className="search-modal-input"
+                aria-label="Search query"
+                role="searchbox"
+              />
+
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    inputRef.current?.focus();
+                  }}
+                  className="search-clear-btn"
+                  aria-label="Clear search query"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              )}
+            </div>
           {/* Empty Query State: Show Popular Topics */}
           {!trimmed && (
             <div className="search-suggestions-block">
@@ -219,38 +234,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {trimmed && hasResults && (
             <div className="search-results-wrapper">
-              {/* Authors Section */}
-              {matchingAuthors.length > 0 && (
-                <div className="search-results-section">
-                  <div className="search-results-heading">
-                    AUTHORS <span>({matchingAuthors.length})</span>
-                  </div>
-                  <div className="search-authors-grid">
-                    {matchingAuthors.map((author) => (
-                      <Link
-                        href={`/author/${author.slug}`}
-                        key={author.slug}
-                        onClick={onClose}
-                        className="search-author-card"
-                      >
-                        <img
-                          src={author.avatar || "/images/homepage/sherpa-featured.jpg"}
-                          alt={author.name}
-                          className="search-author-avatar"
-                        />
-                        <div className="search-author-info">
-                          <h4 className="search-author-name">{author.name}</h4>
-                          <p className="search-author-role">{author.role}</p>
-                        </div>
-                        <span className="search-author-arrow" aria-hidden="true">
-                          →
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Articles Section */}
               {matchingArticles.length > 0 && (
                 <div className="search-results-section">
@@ -272,9 +255,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           className="search-article-item"
                         >
                           {art.image && (
-                            <img
+                            <Image
                               src={art.image}
                               alt={art.title}
+                              width={76}
+                              height={54}
                               className="search-article-thumb"
                             />
                           )}
@@ -292,6 +277,40 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </Link>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+
+              {/* Authors Section */}
+              {matchingAuthors.length > 0 && (
+                <div className="search-results-section">
+                  <div className="search-results-heading">
+                    AUTHORS <span>({matchingAuthors.length})</span>
+                  </div>
+                  <div className="search-authors-grid">
+                    {matchingAuthors.map((author) => (
+                      <Link
+                        href={`/author/${author.slug}`}
+                        key={author.slug}
+                        onClick={onClose}
+                        className="search-author-card"
+                      >
+                        <Image
+                          src={author.avatar || "/images/homepage/sherpa-featured.jpg"}
+                          alt={author.name}
+                          width={42}
+                          height={42}
+                          className="search-author-avatar"
+                        />
+                        <div className="search-author-info">
+                          <h4 className="search-author-name">{author.name}</h4>
+                          <p className="search-author-role">{author.role}</p>
+                        </div>
+                        <span className="search-author-arrow" aria-hidden="true">
+                          →
+                        </span>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               )}

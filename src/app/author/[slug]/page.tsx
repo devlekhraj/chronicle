@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
@@ -103,12 +104,13 @@ export default async function AuthorDetailPage({ params }: PageProps) {
           <div className="author-hero-kicker">AUTHOR</div>
 
           <div className="author-hero-avatar-wrap">
-            <img
+            <Image
               src={author.avatar}
               alt={author.name}
+              width={120}
+              height={120}
               className="author-hero-avatar"
-              loading="eager"
-              decoding="async"
+              priority
             />
           </div>
 
@@ -205,12 +207,13 @@ export default async function AuthorDetailPage({ params }: PageProps) {
               <div className="author-featured-media">
                 <Link href={`/${featuredArticle.slug}`} className="author-featured-img-link" tabIndex={-1} aria-hidden="true">
                   {featuredArticle.image ? (
-                    <img
+                    <Image
                       src={featuredArticle.image}
                       alt={featuredArticle.title}
+                      width={640}
+                      height={400}
                       className="author-featured-img"
-                      loading="eager"
-                      decoding="async"
+                      priority
                     />
                   ) : (
                     <div className="author-featured-placeholder" />

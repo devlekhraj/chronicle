@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import type { ArticleDetail } from "@/data/articles";
 import { getPaginationItems } from "@/components/ui/Pagination";
 
@@ -54,11 +55,12 @@ export default function AuthorStoriesList({
                   aria-hidden="true"
                 >
                   {story.image ? (
-                    <img
+                    <Image
                       src={story.image}
                       alt={story.title}
+                      width={380}
+                      height={240}
                       loading="lazy"
-                      decoding="async"
                       className="author-story-thumb"
                     />
                   ) : (

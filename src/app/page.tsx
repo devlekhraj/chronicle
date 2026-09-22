@@ -1,22 +1,89 @@
 import Link from "next/link";
+import Image from "next/image";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import ShortsSection from "@/components/home/ShortsSection";
 import {
-  heroStory,
-  featuredStories,
-  latestStories,
-  expeditionStories,
-  environmentStories,
-  conservationStories,
+  heroStory as fallbackHeroStory,
+  featuredStories as fallbackFeaturedStories,
+  latestStories as fallbackLatestStories,
+  expeditionStories as fallbackExpeditionStories,
+  environmentStories as fallbackEnvironmentStories,
+  conservationStories as fallbackConservationStories,
+  shorts as fallbackShorts,
 } from "@/data/homepage";
+import { getHomePageData, getNavigationItems, type HomePageData, type NavigationItem } from "@/lib/ec-api";
 import type { ArticleSummary } from "@/types/content";
 
-const categorySections = [
-  { title: "Expeditions", slug: "expeditions", stories: expeditionStories },
-  { title: "Environment", slug: "environment", stories: environmentStories },
-  { title: "Conservation", slug: "conservation", stories: conservationStories },
-];
+
+function OptimizedArticleImage({
+  story,
+  className,
+  height,
+  loading = "lazy",
+  priority = false,
+  sizes,
+  width,
+}: {
+  story: ArticleSummary;
+  className: string;
+  height: number;
+  loading?: "eager" | "lazy";
+  priority?: boolean;
+  sizes: string;
+  width: number;
+}) {
+  const src = story.image;
+
+  if (!src) {
+    return <div className={`placeholder ${className}`} aria-hidden="true" />;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={story.title}
+      width={width}
+      height={height}
+      className={className}
+      loading={priority ? undefined : loading}
+      priority={priority}
+      quality={72}
+      sizes={sizes}
+    />
+  );
+}
+
+const fallbackHomePageData: HomePageData = {
+  heroStory: fallbackHeroStory,
+  featuredStories: fallbackFeaturedStories,
+  latestStories: fallbackLatestStories,
+  categoryStories: {
+    expeditions: fallbackExpeditionStories,
+    expedition: fallbackExpeditionStories,
+    environment: fallbackEnvironmentStories,
+    conservation: fallbackConservationStories,
+  },
+  shorts: fallbackShorts,
+};
+
+async function loadHomePageData(): Promise<HomePageData> {
+  try {
+    return await getHomePageData();
+  } catch {
+    console.warn("Using static homepage fallback because the Laravel API is unavailable.");
+    return fallbackHomePageData;
+  }
+}
+
+async function loadNavigationItems(): Promise<NavigationItem[] | undefined> {
+  try {
+    return await getNavigationItems();
+  } catch {
+    console.warn("Using static navigation fallback because the Laravel API is unavailable.");
+    return undefined;
+  }
+}
 
 function Meta({
   date = "July 10, 2026",
@@ -59,17 +126,13 @@ function StoryCard({ story }: { story: ArticleSummary }) {
         className="card-image-link"
         aria-label={story.title}
       >
-        {story.image ? (
-          <img
-            src={story.image}
-            alt={story.title}
-            className="card-image"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <div className="placeholder card-image" aria-hidden="true" />
-        )}
+        <OptimizedArticleImage
+          story={story}
+          width={400}
+          height={250}
+          className="card-image"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 217px"
+        />
       </Link>
       <Tags tags={story.categories} />
       <h3>
@@ -119,10 +182,40 @@ function Section({
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const [homePageData, navigationItems] = await Promise.all([
+    loadHomePageData(),
+    loadNavigationItems(),
+  ]);
+  const heroStory = homePageData.heroStory ?? fallbackHeroStory;
+  const featuredStories = homePageData.featuredStories.length > 0
+    ? homePageData.featuredStories
+    : fallbackHomePageData.featuredStories;
+  const latestStories = homePageData.latestStories.length > 0
+    ? homePageData.latestStories
+    : fallbackHomePageData.latestStories;
+  const categorySections = [
+    {
+      title: "Expeditions",
+      slug: "expedition",
+      stories: homePageData.categoryStories.expedition ?? homePageData.categoryStories.expeditions ?? fallbackExpeditionStories,
+    },
+    {
+      title: "Environment",
+      slug: "environment",
+      stories: homePageData.categoryStories.environment ?? fallbackEnvironmentStories,
+    },
+    {
+      title: "Conservation",
+      slug: "conservation",
+      stories: homePageData.categoryStories.conservation ?? fallbackConservationStories,
+    },
+  ];
+  const shorts = homePageData.shorts.length > 0 ? homePageData.shorts : fallbackShorts;
+
   return (
     <main id="top">
-      <SiteHeader activeSlug="" />
+      <SiteHeader activeSlug="" navigationItems={navigationItems} />
 
       <div className="page-shell">
         {/* Hero Section */}
@@ -140,17 +233,15 @@ export default function Home() {
             className="hero-image-link"
             aria-label={heroStory.title}
           >
-            {heroStory.image ? (
-              <img
-                src={heroStory.image}
-                alt={heroStory.title}
-                className="hero-image"
-                loading="eager"
-                decoding="async"
-              />
-            ) : (
-              <div className="placeholder hero-image" aria-hidden="true" />
-            )}
+            <OptimizedArticleImage
+              story={heroStory}
+              width={800}
+              height={450}
+              className="hero-image"
+              priority
+              loading="eager"
+              sizes="(max-width: 1024px) calc(100vw - 32px), (max-width: 1348px) calc(100vw - 496px), 876px"
+            />
           </Link>
         </section>
 
@@ -167,20 +258,13 @@ export default function Home() {
                     className="featured-image-link"
                     aria-label={story.title}
                   >
-                    {story.image ? (
-                      <img
-                        src={story.image}
-                        alt={story.title}
-                        className="featured-image"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    ) : (
-                      <div
-                        className="placeholder featured-image"
-                        aria-hidden="true"
-                      />
-                    )}
+                    <OptimizedArticleImage
+                      story={story}
+                      width={600}
+                      height={380}
+                      className="featured-image"
+                      sizes="(max-width: 1024px) calc(100vw - 32px), 320px"
+                    />
                   </Link>
                   <div className="feature-copy">
                     <Tags tags={story.categories} />
@@ -203,7 +287,7 @@ export default function Home() {
             {/* Conservation Section */}
             <Section category={categorySections[2]} />
 
-            <ShortsSection />
+            <ShortsSection items={shorts} />
           </div>
 
           {/* Right Column: Dedicated to Latest Stories */}

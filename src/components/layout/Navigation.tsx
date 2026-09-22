@@ -35,6 +35,7 @@ export default function Navigation() {
         {/* Search area aligned on right */}
         <div className="flex items-center pl-4">
           <SearchBox />
+          uytuyti
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { shorts as defaultShorts } from "@/data/homepage";
 import type { ShortItem } from "@/types/content";
 
@@ -39,10 +40,12 @@ export default function ShortsSection({
     };
 
     document.body.style.overflow = "hidden";
+    document.body.classList.add("modal-backdrop-open");
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.style.overflow = "";
+      document.body.classList.remove("modal-backdrop-open");
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [activeIndex, items.length]);
@@ -130,7 +133,8 @@ export default function ShortsSection({
                       src={item.image}
                       alt={item.title}
                       fill
-                      sizes="(max-width: 640px) 72vw, (max-width: 1024px) 34vw, 210px"
+                      sizes="(max-width: 640px) 190px, (max-width: 1024px) 190px, 205px"
+                      quality={50}
                       className="shorts-image"
                     />
                   ) : (
@@ -156,7 +160,8 @@ export default function ShortsSection({
         </div>
       </section>
 
-      {activeItem && (
+      {activeItem &&
+        createPortal(
         <div
           className="shorts-modal"
           role="dialog"
@@ -165,7 +170,7 @@ export default function ShortsSection({
         >
           <button
             type="button"
-            className="shorts-modal-backdrop"
+            className="shorts-modal-backdrop app-modal-backdrop"
             onClick={() => setActiveIndex(null)}
             aria-label="Close shorts viewer"
           />
@@ -223,7 +228,8 @@ export default function ShortsSection({
                         src={activeItem.image}
                         alt=""
                         fill
-                        sizes="420px"
+                        sizes="(max-width: 640px) 303px, 420px"
+                        quality={55}
                         className="shorts-image"
                       />
                     )}
@@ -255,7 +261,8 @@ export default function ShortsSection({
               </svg>
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

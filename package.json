@@ -2,8 +2,8 @@
   "name": "everest-chronicle-homepage",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
+    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 next build",
     "start": "next start"
   },
   "dependencies": {

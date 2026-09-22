@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import Pagination from "@/components/ui/Pagination";
@@ -72,11 +73,12 @@ export default async function MediaSubcategoryPage({ params, searchParams }: Pag
               >
                 <div className="category-article-thumb placeholder">
                   {story.image ? (
-                    <img
+                    <Image
                       src={story.image}
                       alt={story.title}
+                      width={380}
+                      height={240}
                       loading="lazy"
-                      decoding="async"
                     />
                   ) : (
                     <div className="category-thumb-fallback" />

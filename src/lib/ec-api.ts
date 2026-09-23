@@ -1,5 +1,6 @@
 import http from "node:http";
 import https from "node:https";
+import { cacheLife, cacheTag } from "next/cache";
 import type {
   ArticleBodyBlock,
   ArticleCategory,
@@ -49,6 +50,13 @@ export interface CategoryPageData {
   pagination: PaginationMeta;
 }
 
+export interface SitemapEntry {
+  path: string;
+  lastModified?: string | null;
+  changeFrequency?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
+  priority?: number;
+}
+
 /** Full article payload returned by `GET /api/ec/articles/{slug}`. */
 export interface ArticleDetailPayload {
   id: string;
@@ -93,48 +101,13 @@ export class EcApiError extends Error {
   }
 }
 
+const IS_EC_API_CONFIGURED = Boolean(process.env.EC_API_BASE_URL);
 const API_BASE_URL = process.env.EC_API_BASE_URL || "https://admin-chronicle.test";
+const API_TIMEOUT_MS = (() => {
+  const milliseconds = Number.parseInt(process.env.EC_API_TIMEOUT_MS ?? "8000", 10);
 
-/**
- * Requests go through `node:http(s)` rather than `fetch`, which keeps the
- * self-signed-certificate handling below working but also means Next.js cannot
- * cache them. A small in-process TTL cache stands in for that: without it every
- * page view of a category page with 40+ pages of results hits Laravel.
- *
- * Set `EC_API_CACHE_SECONDS=0` to disable.
- */
-const CACHE_TTL_MS = (() => {
-  const seconds = Number.parseInt(process.env.EC_API_CACHE_SECONDS ?? "60", 10);
-
-  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : 0;
+  return Number.isFinite(milliseconds) && milliseconds > 0 ? milliseconds : 8000;
 })();
-
-const CACHE_MAX_ENTRIES = 250;
-
-const responseCache = new Map<string, { expiresAt: number; value: unknown }>();
-
-async function fetchJson<T>(path: string): Promise<T> {
-  const cached = responseCache.get(path);
-
-  if (cached && cached.expiresAt > Date.now()) {
-    return cached.value as T;
-  }
-
-  const value = await requestJson<T>(path);
-
-  if (CACHE_TTL_MS > 0) {
-    if (responseCache.size >= CACHE_MAX_ENTRIES) {
-      const oldest = responseCache.keys().next().value;
-      if (oldest !== undefined) {
-        responseCache.delete(oldest);
-      }
-    }
-
-    responseCache.set(path, { expiresAt: Date.now() + CACHE_TTL_MS, value });
-  }
-
-  return value;
-}
 
 function requestJson<T>(path: string): Promise<T> {
   const url = new URL(path, API_BASE_URL);
@@ -176,29 +149,63 @@ function requestJson<T>(path: string): Promise<T> {
       },
     );
 
+    request.setTimeout(API_TIMEOUT_MS, () => {
+      request.destroy(new Error(`Everest Chronicle API request timed out after ${API_TIMEOUT_MS}ms: ${path}`));
+    });
     request.on("error", reject);
     request.end();
   });
 }
 
 export async function getHomePageData(): Promise<HomePageData> {
-  return fetchJson<HomePageData>("/api/ec/home");
+  "use cache";
+
+  cacheLife("content");
+  cacheTag("homepage", "articles", "categories");
+
+  return requestJson<HomePageData>("/api/ec/home");
 }
 
 export async function getNavigationItems(): Promise<NavigationItem[]> {
-  const data = await fetchJson<{ items: NavigationItem[] }>("/api/ec/navigation");
+  "use cache";
+
+  cacheLife("navigation");
+  cacheTag("navigation");
+
+  const data = await requestJson<{ items: NavigationItem[] }>("/api/ec/navigation");
 
   return data.items;
 }
 
 export async function getCategoryPageData(slug: string, page = 1): Promise<CategoryPageData> {
+  "use cache";
+
+  cacheLife("listing");
+  cacheTag("articles", "categories", `category:${slug}`);
+
   const query = page > 1 ? `?page=${page}` : "";
 
-  return fetchJson<CategoryPageData>(`/api/ec/categories/${encodeURIComponent(slug)}${query}`);
+  return requestJson<CategoryPageData>(`/api/ec/categories/${encodeURIComponent(slug)}${query}`);
 }
 
 export async function getArticleDetail(slug: string): Promise<ArticleDetailData> {
-  return fetchJson<ArticleDetailData>(`/api/ec/articles/${encodeURIComponent(slug)}`);
+  "use cache";
+
+  cacheLife("content");
+  cacheTag("articles", `article:${slug}`);
+
+  return requestJson<ArticleDetailData>(`/api/ec/articles/${encodeURIComponent(slug)}`);
 }
 
-export { API_BASE_URL };
+export async function getSitemapEntries(): Promise<SitemapEntry[]> {
+  "use cache";
+
+  cacheLife("longLived");
+  cacheTag("homepage", "articles", "categories", "navigation");
+
+  const data = await requestJson<{ urls: SitemapEntry[] }>("/api/ec/sitemap");
+
+  return data.urls;
+}
+
+export { API_BASE_URL, IS_EC_API_CONFIGURED };

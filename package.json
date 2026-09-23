@@ -2,19 +2,24 @@
   "name": "everest-chronicle-homepage",
   "private": true,
   "scripts": {
-    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
-    "build": "NODE_TLS_REJECT_UNAUTHORIZED=0 next build",
+    "dev": "NODE_EXTRA_CA_CERTS=\"$HOME/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem\" next dev",
+    "build": "next build",
     "start": "next start"
   },
+  "engines": {
+    "node": ">=22 <23"
+  },
   "dependencies": {
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "typescript": "latest"
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "tailwindcss": "^4",
+    "typescript": "^5.9.2"
   }
 }

@@ -12,6 +12,8 @@ interface PageProps {
   searchParams?: Promise<{ page?: string }>;
 }
 
+export const instant = false;
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { subcategory } = await params;
   const data = categoryRegistry[subcategory.toLowerCase()];

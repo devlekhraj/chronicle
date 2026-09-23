@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import NewsletterSignup from "@/components/layout/NewsletterSignup";
 
 const footerSections = [
   { title: "Expeditions", slug: "expeditions" },
@@ -41,18 +40,7 @@ export default function SiteFooter() {
             Expeditions, climate, wildlife, and deep investigative stories
             delivered directly to your inbox every Thursday morning.
           </p>
-          <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="newsletter-email-input" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="newsletter-email-input"
-              type="email"
-              placeholder="Enter your email address"
-              aria-label="Email address"
-            />
-            <button type="submit">SUBSCRIBE</button>
-          </form>
+          <NewsletterSignup />
           <p className="newsletter-disclaimer">
             Free weekly edition. Zero spam. Unsubscribe anytime.
           </p>

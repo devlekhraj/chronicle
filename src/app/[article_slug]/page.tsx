@@ -18,11 +18,13 @@ import {
   type ArticleDetail,
   articleRegistry,
 } from "@/data/articles";
-import { EcApiError, getArticleDetail } from "@/lib/ec-api";
+import { EcApiError, IS_EC_API_CONFIGURED, getArticleDetail } from "@/lib/ec-api";
 
 interface PageProps {
   params: Promise<{ article_slug: string }>;
 }
+
+export const instant = false;
 
 interface CategoryRef {
   title: string;
@@ -179,6 +181,10 @@ function fallbackArticleView(slug: string): ArticleView | null {
 }
 
 const loadArticleView = cache(async function loadArticleView(slug: string): Promise<ArticleView | null> {
+  if (!IS_EC_API_CONFIGURED) {
+    return fallbackArticleView(slug);
+  }
+
   try {
     const data = await getArticleDetail(slug);
     const article = data.article;

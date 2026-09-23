@@ -6,13 +6,15 @@ import SiteFooter from "@/components/layout/SiteFooter";
 import SafeImage from "@/components/ui/SafeImage";
 import Pagination from "@/components/ui/Pagination";
 import { categoryRegistry } from "@/data/categories";
-import { EcApiError, getCategoryPageData } from "@/lib/ec-api";
+import { EcApiError, IS_EC_API_CONFIGURED, getCategoryPageData } from "@/lib/ec-api";
 import type { ArticleSummary } from "@/types/content";
 
 interface PageProps {
   params: Promise<{ category: string }>;
   searchParams?: Promise<{ page?: string }>;
 }
+
+export const instant = false;
 
 interface CategoryView {
   title: string;
@@ -56,6 +58,10 @@ function fallbackCategoryView(slug: string, currentPage: number): CategoryView |
 }
 
 async function loadCategoryView(slug: string, currentPage: number): Promise<CategoryView | null> {
+  if (!IS_EC_API_CONFIGURED) {
+    return fallbackCategoryView(slug, currentPage);
+  }
+
   try {
     const data = await getCategoryPageData(slug, currentPage);
     const { pagination } = data;

@@ -12,7 +12,7 @@ import {
   conservationStories as fallbackConservationStories,
   shorts as fallbackShorts,
 } from "@/data/homepage";
-import { getHomePageData, getNavigationItems, type HomePageData, type NavigationItem } from "@/lib/ec-api";
+import { IS_EC_API_CONFIGURED, getHomePageData, getNavigationItems, type HomePageData, type NavigationItem } from "@/lib/ec-api";
 import type { ArticleSummary } from "@/types/content";
 
 
@@ -68,6 +68,10 @@ const fallbackHomePageData: HomePageData = {
 };
 
 async function loadHomePageData(): Promise<HomePageData> {
+  if (!IS_EC_API_CONFIGURED) {
+    return fallbackHomePageData;
+  }
+
   try {
     return await getHomePageData();
   } catch {
@@ -77,6 +81,10 @@ async function loadHomePageData(): Promise<HomePageData> {
 }
 
 async function loadNavigationItems(): Promise<NavigationItem[] | undefined> {
+  if (!IS_EC_API_CONFIGURED) {
+    return undefined;
+  }
+
   try {
     return await getNavigationItems();
   } catch {

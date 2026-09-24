@@ -1,12 +1,11 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import SafeImage from "@/components/ui/SafeImage";
 import Pagination from "@/components/ui/Pagination";
-import { categoryRegistry } from "@/data/categories";
-import { EcApiError, IS_EC_API_CONFIGURED, getCategoryPageData } from "@/lib/ec-api";
+import { EcApiError, getCategoryPageData, getNavigationItems } from "@/lib/ec-api";
 import type { ArticleSummary } from "@/types/content";
 
 interface PageProps {
@@ -15,6 +14,10 @@ interface PageProps {
 }
 
 export const instant = false;
+
+const CATEGORY_ALIASES: Record<string, string> = {
+  expeditions: "expedition",
+};
 
 interface CategoryView {
   title: string;
@@ -31,37 +34,7 @@ function parsePage(value?: string): number {
   return Math.max(1, Number.parseInt(value || "1", 10) || 1);
 }
 
-/**
- * Static registry fallback, kept for when the Laravel API is unreachable.
- * Returns null when the slug is not a known bundled category.
- */
-function fallbackCategoryView(slug: string, currentPage: number): CategoryView | null {
-  const data = categoryRegistry[slug.toLowerCase()];
-
-  if (!data) {
-    return null;
-  }
-
-  const countMatch = data.count.match(/of\s+(\d+)\s+results/i);
-  const totalResults = countMatch ? Number.parseInt(countMatch[1], 10) : 50;
-  const itemsPerPage = 10;
-
-  return {
-    title: data.title,
-    slug: data.slug,
-    description: data.description,
-    countLabel: data.count,
-    articles: data.stories,
-    currentPage,
-    totalPages: Math.max(1, Math.ceil(totalResults / itemsPerPage)),
-  };
-}
-
 async function loadCategoryView(slug: string, currentPage: number): Promise<CategoryView | null> {
-  if (!IS_EC_API_CONFIGURED) {
-    return fallbackCategoryView(slug, currentPage);
-  }
-
   try {
     const data = await getCategoryPageData(slug, currentPage);
     const { pagination } = data;
@@ -84,16 +57,15 @@ async function loadCategoryView(slug: string, currentPage: number): Promise<Cate
       return null;
     }
 
-    console.warn(`Using static category fallback for "${slug}" because the Laravel API is unavailable.`);
-
-    return fallbackCategoryView(slug, currentPage);
+    throw error;
   }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category } = await params;
+  const canonicalCategory = CATEGORY_ALIASES[category.toLowerCase()] ?? category;
 
-  const view = await loadCategoryView(category, 1);
+  const view = await loadCategoryView(canonicalCategory, 1);
 
   if (!view) {
     return {
@@ -108,7 +80,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${view.title} | Everest Chronicle`,
       description: view.description,
       type: "website",
-      url: `https://everestchronicle.com/category/${category}`,
+      url: `https://everestchronicle.com/category/${view.slug}`,
     },
   };
 }
@@ -117,8 +89,17 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   const { category } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const currentPage = parsePage(resolvedSearchParams?.page);
+  const canonicalCategory = CATEGORY_ALIASES[category.toLowerCase()];
 
-  const view = await loadCategoryView(category, currentPage);
+  if (canonicalCategory) {
+    const pageQuery = currentPage > 1 ? `?page=${currentPage}` : "";
+    permanentRedirect(`/category/${canonicalCategory}${pageQuery}`);
+  }
+
+  const [view, navigationItems] = await Promise.all([
+    loadCategoryView(category, currentPage),
+    getNavigationItems(),
+  ]);
 
   if (!view) {
     notFound();
@@ -126,7 +107,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
   return (
     <main id="top">
-      <SiteHeader activeSlug={view.slug} />
+      <SiteHeader activeSlug={view.slug} navigationItems={navigationItems} />
 
       <div className="category-page-shell">
         <header className="category-page-header">

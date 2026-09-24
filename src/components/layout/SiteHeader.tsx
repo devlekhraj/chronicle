@@ -13,26 +13,6 @@ interface HeaderNavItem {
   children?: HeaderNavItem[];
 }
 
-export const fallbackNavItems: HeaderNavItem[] = [
-  { title: "Home", slug: "home", href: "/" },
-  { title: "Expedition", slug: "expedition", href: "/category/expedition" },
-  { title: "Environment", slug: "environment", href: "/category/environment" },
-  {
-    title: "Conservation",
-    slug: "conservation",
-    href: "/category/conservation",
-  },
-  { title: "Travel", slug: "travel", href: "/category/travel" },
-];
-
-export const fallbackMediaDropdownItems: HeaderNavItem[] = [
-  { title: "Dataviz", slug: "dataviz", href: "/media/dataviz" },
-  { title: "3D", slug: "3d", href: "/media/3d" },
-  { title: "Video", slug: "video", href: "/media/video" },
-  { title: "Photography", slug: "photography", href: "/media/photography" },
-];
-
-
 function navItemSlug(item: { href: string; title?: string; label?: string }) {
   const slug = item.href.split("/").filter(Boolean).pop();
 
@@ -106,12 +86,12 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
   const navItems = useMemo(
     () => navigationItems && navigationItems.length > 0
       ? normalizeNavItems(navigationItems)
-      : fallbackNavItems,
+      : [],
     [navigationItems],
   );
 
   const mediaNavItem = navItems.find((item) => item.children && item.children.length > 0);
-  const mediaDropdownItems = mediaNavItem?.children ?? fallbackMediaDropdownItems;
+  const mediaDropdownItems = mediaNavItem?.children ?? [];
   const primaryNavItems = navItems.filter((item) => item.slug === "home" || item !== mediaNavItem);
 
   // Only show progress bar on article detail pages

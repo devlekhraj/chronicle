@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { latestStories as defaultLatest } from "@/data/homepage";
 import type { ArticleSummary } from "@/types/content";
 
 interface LatestStoriesProps {
@@ -8,7 +7,7 @@ interface LatestStoriesProps {
 }
 
 export default function LatestStories({
-  stories = defaultLatest,
+  stories = [],
   className = "",
 }: LatestStoriesProps) {
   return (

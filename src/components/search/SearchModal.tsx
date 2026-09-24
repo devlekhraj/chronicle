@@ -4,9 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { articleRegistry, type ArticleDetail } from "@/data/articles";
-import { authorRegistry } from "@/data/authors";
-import type { AuthorProfile } from "@/types/content";
+import type { ArticleSummary, AuthorProfile } from "@/types/content";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -26,6 +24,9 @@ const POPULAR_TOPICS = [
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
+  const [matchingAuthors, setMatchingAuthors] = useState<AuthorProfile[]>([]);
+  const [matchingArticles, setMatchingArticles] = useState<ArticleSummary[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -50,6 +51,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       document.body.style.overflow = "";
       document.body.classList.remove("modal-backdrop-open");
       setQuery("");
+      setMatchingAuthors([]);
+      setMatchingArticles([]);
     }
   }, [isOpen]);
 
@@ -64,34 +67,55 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen || !mounted) return null;
-
   const trimmed = query.trim().toLowerCase();
 
-  // Search logic
-  let matchingAuthors: AuthorProfile[] = [];
-  let matchingArticles: ArticleDetail[] = [];
+  useEffect(() => {
+    if (!isOpen || trimmed.length === 0) {
+      setMatchingAuthors([]);
+      setMatchingArticles([]);
+      setIsSearching(false);
+      return;
+    }
 
-  if (trimmed.length > 0) {
-    const allAuthors = Object.values(authorRegistry);
-    matchingAuthors = allAuthors.filter((author) => {
-      const nameMatch = author.name.toLowerCase().includes(trimmed);
-      const roleMatch = author.role?.toLowerCase().includes(trimmed);
-      const bioMatch = author.bio?.toLowerCase().includes(trimmed);
-      const beatsMatch = author.beats?.some((b) => b.toLowerCase().includes(trimmed));
-      return nameMatch || roleMatch || bioMatch || beatsMatch;
-    });
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setIsSearching(true);
 
-    const allArticles = Object.values(articleRegistry);
-    matchingArticles = allArticles.filter((art) => {
-      const titleMatch = art.title.toLowerCase().includes(trimmed);
-      const dekMatch = art.dek?.toLowerCase().includes(trimmed);
-      const catMatch = art.categories?.some((c) => c.title.toLowerCase().includes(trimmed));
-      const tagMatch = art.tags?.some((t) => t.title.toLowerCase().includes(trimmed));
-      const authorMatch = art.authors?.some((a) => a.name.toLowerCase().includes(trimmed));
-      return titleMatch || dekMatch || catMatch || tagMatch || authorMatch;
-    });
-  }
+      try {
+        const response = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Search failed with status ${response.status}`);
+        }
+
+        const data = await response.json() as {
+          articles?: ArticleSummary[];
+          authors?: AuthorProfile[];
+        };
+
+        setMatchingArticles(data.articles ?? []);
+        setMatchingAuthors(data.authors ?? []);
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setMatchingArticles([]);
+          setMatchingAuthors([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsSearching(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [isOpen, trimmed]);
+
+  if (!isOpen || !mounted) return null;
 
   const hasResults = matchingAuthors.length > 0 || matchingArticles.length > 0;
 
@@ -223,7 +247,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           )}
 
           {/* With Query: Display Results */}
-          {trimmed && !hasResults && (
+          {trimmed && isSearching && (
+            <div className="search-empty-state">
+              <p className="search-empty-title">Searching...</p>
+            </div>
+          )}
+
+          {trimmed && !isSearching && !hasResults && (
             <div className="search-empty-state">
               <p className="search-empty-title">No results found for &ldquo;{query}&rdquo;</p>
               <p className="search-empty-desc">
@@ -232,7 +262,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
 
-          {trimmed && hasResults && (
+          {trimmed && !isSearching && hasResults && (
             <div className="search-results-wrapper">
               {/* Articles Section */}
               {matchingArticles.length > 0 && (
@@ -242,10 +272,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </div>
                   <div className="search-articles-list">
                     {matchingArticles.map((art) => {
+                      const primaryCategory = art.categories?.[0];
                       const categoryTitle =
-                        art.categories && art.categories.length > 0
-                          ? art.categories[0].title
-                          : "Dispatches";
+                        typeof primaryCategory === "string"
+                          ? primaryCategory
+                          : primaryCategory?.title ?? "Dispatches";
 
                       return (
                         <Link
@@ -270,8 +301,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                               <span className="search-article-date">{art.publishedAt}</span>
                             </div>
                             <h4 className="search-article-title">{art.title}</h4>
-                            {art.dek && (
-                              <p className="search-article-dek">{art.dek}</p>
+                            {art.excerpt && (
+                              <p className="search-article-dek">{art.excerpt}</p>
                             )}
                           </div>
                         </Link>

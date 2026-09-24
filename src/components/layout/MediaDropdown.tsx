@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { type NavigationChild } from "@/data/navigation";
+import type { NavigationChild } from "@/lib/ec-api";
 
 interface MediaDropdownProps {
   items: NavigationChild[];

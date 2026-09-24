@@ -5,89 +5,93 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import AuthorStoriesList from "@/components/author/AuthorStoriesList";
-import {
-  authorRegistry,
-  getAuthorBySlug,
-  getAuthorArticles,
-} from "@/data/authors";
-import { articleRegistry } from "@/data/articles";
+import { EcApiError, getAuthorPageData, getNavigationItems } from "@/lib/ec-api";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return Object.keys(authorRegistry).map((slug) => ({ slug }));
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const author = getAuthorBySlug(slug);
 
-  if (!author) {
+  try {
+    const { author } = await getAuthorPageData(slug);
+
+    const title = `${author.name} | Everest Chronicle`;
+    const description = author.bio;
+
     return {
-      title: "Author Not Found | Everest Chronicle",
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        type: "profile",
+        url: `https://everestchronicle.com/author/${author.slug}`,
+        images: [
+          {
+            url: author.avatar,
+            width: 600,
+            height: 600,
+            alt: author.name,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
+        images: [author.avatar],
+      },
     };
+  } catch (error) {
+    if (error instanceof EcApiError && error.status === 404) {
+      return {
+        title: "Author Not Found | Everest Chronicle",
+      };
+    }
+
+    throw error;
   }
-
-  const title = `${author.name} | Everest Chronicle`;
-  const description = author.bio;
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: "profile",
-      url: `https://everestchronicle.com/author/${author.slug}`,
-      images: [
-        {
-          url: author.avatar,
-          width: 600,
-          height: 600,
-          alt: author.name,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary",
-      title,
-      description,
-      images: [author.avatar],
-    },
-  };
 }
 
 export default async function AuthorDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const author = getAuthorBySlug(slug);
+  let data;
+  let navigationItems;
 
-  if (!author) {
-    notFound();
+  try {
+    [data, navigationItems] = await Promise.all([
+      getAuthorPageData(slug),
+      getNavigationItems(),
+    ]);
+  } catch (error) {
+    if (error instanceof EcApiError && error.status === 404) {
+      notFound();
+    }
+
+    throw error;
   }
 
-  const articles = getAuthorArticles(slug);
+  const { author, articles, mostRead, topics: apiTopics } = data;
   const featuredArticle = articles.length > 0 ? articles[0] : null;
   const latestStories = articles.slice(1);
 
-  // Most read articles from the site archive
-  const allArticlesList = Object.values(articleRegistry);
-  const mostReadArticles = allArticlesList.slice(0, 4);
-
   // Author topics
-  const topics = author.beats && author.beats.length > 0
-    ? author.beats
-    : ["Mountaineering", "Environment", "Conservation", "Communities"];
+  const topics = apiTopics ?? author.beats ?? [];
 
   const featuredCategory =
     featuredArticle?.categories && featuredArticle.categories.length > 0
       ? featuredArticle.categories[0]
-      : { title: "Mountaineering", slug: "expeditions" };
+      : null;
 
   return (
     <main id="top" className="author-page-wrapper">
-      <SiteHeader />
+      <SiteHeader navigationItems={navigationItems} />
 
       <div className="author-page-shell">
         {/* ── Breadcrumb ───────────────────────────────────────────── */}
@@ -222,12 +226,14 @@ export default async function AuthorDetailPage({ params }: PageProps) {
               </div>
 
               <div className="author-featured-body">
-                <Link
-                  href={`/category/${featuredCategory.slug}`}
-                  className="author-featured-tag"
-                >
-                  {featuredCategory.title}
-                </Link>
+                {featuredCategory && (
+                  <Link
+                    href={`/category/${typeof featuredCategory === "string" ? featuredCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-") : featuredCategory.slug}`}
+                    className="author-featured-tag"
+                  >
+                    {typeof featuredCategory === "string" ? featuredCategory : featuredCategory.title}
+                  </Link>
+                )}
 
                 <h3 className="author-featured-title">
                   <Link href={`/${featuredArticle.slug}`}>
@@ -235,7 +241,9 @@ export default async function AuthorDetailPage({ params }: PageProps) {
                   </Link>
                 </h3>
 
-                <p className="author-featured-dek">{featuredArticle.dek}</p>
+                {featuredArticle.excerpt && (
+                  <p className="author-featured-dek">{featuredArticle.excerpt}</p>
+                )}
 
                 <time dateTime={featuredArticle.publishedAt} className="author-featured-date">
                   {featuredArticle.publishedAt}
@@ -264,7 +272,7 @@ export default async function AuthorDetailPage({ params }: PageProps) {
               <h2 className="author-sidebar-heading">MOST READ</h2>
 
               <div className="author-most-read-list">
-                {mostReadArticles.map((item, index) => {
+                {mostRead.map((item, index) => {
                   const numberStr = String(index + 1).padStart(2, "0");
                   return (
                     <div className="author-most-read-item" key={item.slug}>

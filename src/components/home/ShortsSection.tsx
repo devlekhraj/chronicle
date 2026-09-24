@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { shorts as defaultShorts } from "@/data/homepage";
 import type { ShortItem } from "@/types/content";
 
 interface ShortsSectionProps {
@@ -12,7 +11,7 @@ interface ShortsSectionProps {
 }
 
 export default function ShortsSection({
-  items = defaultShorts,
+  items = [],
   className = "",
 }: ShortsSectionProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);

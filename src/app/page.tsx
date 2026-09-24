@@ -3,17 +3,9 @@ import Image from "next/image";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import ShortsSection from "@/components/home/ShortsSection";
-import {
-  heroStory as fallbackHeroStory,
-  featuredStories as fallbackFeaturedStories,
-  latestStories as fallbackLatestStories,
-  expeditionStories as fallbackExpeditionStories,
-  environmentStories as fallbackEnvironmentStories,
-  conservationStories as fallbackConservationStories,
-  shorts as fallbackShorts,
-} from "@/data/homepage";
-import { IS_EC_API_CONFIGURED, getHomePageData, getNavigationItems, type HomePageData, type NavigationItem } from "@/lib/ec-api";
+import { getHomePageData, getNavigationItems, type HomePageData, type NavigationItem } from "@/lib/ec-api";
 import type { ArticleSummary } from "@/types/content";
+import { notFound } from "next/navigation";
 
 
 function OptimizedArticleImage({
@@ -54,43 +46,12 @@ function OptimizedArticleImage({
   );
 }
 
-const fallbackHomePageData: HomePageData = {
-  heroStory: fallbackHeroStory,
-  featuredStories: fallbackFeaturedStories,
-  latestStories: fallbackLatestStories,
-  categoryStories: {
-    expeditions: fallbackExpeditionStories,
-    expedition: fallbackExpeditionStories,
-    environment: fallbackEnvironmentStories,
-    conservation: fallbackConservationStories,
-  },
-  shorts: fallbackShorts,
-};
-
 async function loadHomePageData(): Promise<HomePageData> {
-  if (!IS_EC_API_CONFIGURED) {
-    return fallbackHomePageData;
-  }
-
-  try {
-    return await getHomePageData();
-  } catch {
-    console.warn("Using static homepage fallback because the Laravel API is unavailable.");
-    return fallbackHomePageData;
-  }
+  return getHomePageData();
 }
 
 async function loadNavigationItems(): Promise<NavigationItem[] | undefined> {
-  if (!IS_EC_API_CONFIGURED) {
-    return undefined;
-  }
-
-  try {
-    return await getNavigationItems();
-  } catch {
-    console.warn("Using static navigation fallback because the Laravel API is unavailable.");
-    return undefined;
-  }
+  return getNavigationItems();
 }
 
 function Meta({
@@ -195,31 +156,32 @@ export default async function Home() {
     loadHomePageData(),
     loadNavigationItems(),
   ]);
-  const heroStory = homePageData.heroStory ?? fallbackHeroStory;
-  const featuredStories = homePageData.featuredStories.length > 0
-    ? homePageData.featuredStories
-    : fallbackHomePageData.featuredStories;
-  const latestStories = homePageData.latestStories.length > 0
-    ? homePageData.latestStories
-    : fallbackHomePageData.latestStories;
+  const heroStory = homePageData.heroStory;
+
+  if (!heroStory) {
+    notFound();
+  }
+
+  const featuredStories = homePageData.featuredStories;
+  const latestStories = homePageData.latestStories;
   const categorySections = [
     {
       title: "Expeditions",
       slug: "expedition",
-      stories: homePageData.categoryStories.expedition ?? homePageData.categoryStories.expeditions ?? fallbackExpeditionStories,
+      stories: homePageData.categoryStories.expedition ?? [],
     },
     {
       title: "Environment",
       slug: "environment",
-      stories: homePageData.categoryStories.environment ?? fallbackEnvironmentStories,
+      stories: homePageData.categoryStories.environment ?? [],
     },
     {
       title: "Conservation",
       slug: "conservation",
-      stories: homePageData.categoryStories.conservation ?? fallbackConservationStories,
+      stories: homePageData.categoryStories.conservation ?? [],
     },
   ];
-  const shorts = homePageData.shorts.length > 0 ? homePageData.shorts : fallbackShorts;
+  const shorts = homePageData.shorts;
 
   return (
     <main id="top">

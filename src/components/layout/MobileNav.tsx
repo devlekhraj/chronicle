@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import SearchBox from "@/components/ui/SearchBox";
-import { type NavigationItem } from "@/data/navigation";
+import type { NavigationItem } from "@/lib/ec-api";
 
 interface MobileNavProps {
   items: NavigationItem[];

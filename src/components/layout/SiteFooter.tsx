@@ -2,7 +2,7 @@ import Link from "next/link";
 import NewsletterSignup from "@/components/layout/NewsletterSignup";
 
 const footerSections = [
-  { title: "Expeditions", slug: "expeditions" },
+  { title: "Expeditions", slug: "expedition" },
   { title: "Environment", slug: "environment" },
   { title: "Conservation", slug: "conservation" },
   { title: "Travel", slug: "travel" },

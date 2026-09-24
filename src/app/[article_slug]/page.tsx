@@ -8,17 +8,12 @@ import SafeImage from "@/components/ui/SafeImage";
 import {
   type ArticleCategory,
   ArticleImageRef,
+  type ArticleBodyBlock,
   type ArticleSummary,
   type AuthorMeta,
   type SeoMeta,
 } from "@/types/content";
-import { authorSlugFromName } from "@/data/authors";
-import {
-  type ArticleBodyBlock,
-  type ArticleDetail,
-  articleRegistry,
-} from "@/data/articles";
-import { EcApiError, IS_EC_API_CONFIGURED, getArticleDetail } from "@/lib/ec-api";
+import { EcApiError, getArticleDetail, getNavigationItems } from "@/lib/ec-api";
 
 interface PageProps {
   params: Promise<{ article_slug: string }>;
@@ -94,97 +89,11 @@ function summaryToCard(summary: ArticleSummary): RelatedCard {
   };
 }
 
-function detailToCard(detail: ArticleDetail): RelatedCard {
-  return {
-    slug: detail.slug,
-    title: detail.title,
-    image: detail.image,
-    categories: normaliseCategories(detail.categories),
-    blurb: detail.dek,
-    publishedAt: detail.publishedAt,
-    authorName: detail.authors?.[0]?.name,
-  };
-}
-
-/**
- * Prev / next / related for the bundled fixtures, used only when the API is
- * unreachable. The API computes these in SQL instead.
- */
-function staticRelations(slug: string, article: ArticleDetail) {
-  const allSlugs = Object.keys(articleRegistry);
-  const currentIndex = allSlugs.indexOf(slug);
-  const prevSlug = currentIndex > 0 ? allSlugs[currentIndex - 1] : null;
-  const nextSlug =
-    currentIndex !== -1 && currentIndex < allSlugs.length - 1
-      ? allSlugs[currentIndex + 1]
-      : null;
-
-  const RELATED_LIMIT = 4;
-  const related: ArticleDetail[] = [];
-  const added = new Set<string>([article.slug]);
-
-  const push = (candidate?: ArticleDetail) => {
-    if (!candidate || added.has(candidate.slug) || related.length >= RELATED_LIMIT) {
-      return;
-    }
-    related.push(candidate);
-    added.add(candidate.slug);
-  };
-
-  for (const relatedSlug of article.relatedSlugs ?? []) {
-    push(articleRegistry[relatedSlug]);
-  }
-
-  const currentCategorySlugs = new Set(article.categories.map((c) => c.slug));
-  for (const candidate of Object.values(articleRegistry)) {
-    if (candidate.categories.some((c) => currentCategorySlugs.has(c.slug))) {
-      push(candidate);
-    }
-  }
-
-  for (const candidate of Object.values(articleRegistry)) {
-    push(candidate);
-  }
-
-  return {
-    prev: prevSlug ? { slug: prevSlug, title: articleRegistry[prevSlug].title } : null,
-    next: nextSlug ? { slug: nextSlug, title: articleRegistry[nextSlug].title } : null,
-    related: related.map(detailToCard),
-  };
-}
-
-function fallbackArticleView(slug: string): ArticleView | null {
-  const article = articleRegistry[slug];
-
-  if (!article) {
-    return null;
-  }
-
-  const relations = staticRelations(slug, article);
-
-  return {
-    slug: article.slug,
-    title: article.title,
-    dek: article.dek,
-    categories: normaliseCategories(article.categories),
-    publishedAt: article.publishedAt,
-    publishedAtIso: article.publishedAt,
-    readTime: article.readTime,
-    authors: article.authors ?? [],
-    image: article.image,
-    caption: article.caption,
-    credit: article.credit,
-    body: article.body,
-    meta: article.meta,
-    ...relations,
-  };
+function authorSlugFromName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 const loadArticleView = cache(async function loadArticleView(slug: string): Promise<ArticleView | null> {
-  if (!IS_EC_API_CONFIGURED) {
-    return fallbackArticleView(slug);
-  }
-
   try {
     const data = await getArticleDetail(slug);
     const article = data.article;
@@ -213,9 +122,7 @@ const loadArticleView = cache(async function loadArticleView(slug: string): Prom
       return null;
     }
 
-    console.warn(`Using static article fallback for "${slug}" because the Laravel API is unavailable.`);
-
-    return fallbackArticleView(slug);
+    throw error;
   }
 });
 
@@ -529,7 +436,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ArticlePage({ params }: PageProps) {
   const { article_slug } = await params;
-  const article = await loadArticleView(article_slug);
+  const [article, navigationItems] = await Promise.all([
+    loadArticleView(article_slug),
+    getNavigationItems(),
+  ]);
 
   if (!article) {
     notFound();
@@ -540,7 +450,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   return (
     <main id="top">
-      <SiteHeader />
+      <SiteHeader navigationItems={navigationItems} />
 
       <article className="article-detail-shell">
         <header className="article-detail-header">

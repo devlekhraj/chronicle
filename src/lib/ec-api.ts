@@ -5,6 +5,7 @@ import type {
   ArticleBodyBlock,
   ArticleCategory,
   ArticleSummary,
+  AuthorProfile,
   AuthorMeta,
   SeoMeta,
   ShortItem,
@@ -86,10 +87,21 @@ export interface ArticleDetailData {
   related: ArticleSummary[];
 }
 
+export interface AuthorPageData {
+  author: AuthorProfile;
+  articles: ArticleSummary[];
+  mostRead: ArticleSummary[];
+  topics?: string[];
+}
+
+export interface SearchResultsData {
+  articles: ArticleSummary[];
+  authors: AuthorProfile[];
+}
+
 /**
  * Error carrying the upstream HTTP status so callers can tell "this slug does
- * not exist" (404 -> notFound()) apart from "the API is unreachable"
- * (everything else -> fall back to bundled content).
+ * not exist" (404 -> notFound()) apart from "the API is unreachable".
  */
 export class EcApiError extends Error {
   readonly status: number;
@@ -101,8 +113,8 @@ export class EcApiError extends Error {
   }
 }
 
-const IS_EC_API_CONFIGURED = Boolean(process.env.EC_API_BASE_URL);
 const API_BASE_URL = process.env.EC_API_BASE_URL || "https://admin-chronicle.test";
+const IS_EC_API_CONFIGURED = true;
 const API_TIMEOUT_MS = (() => {
   const milliseconds = Number.parseInt(process.env.EC_API_TIMEOUT_MS ?? "8000", 10);
 
@@ -195,6 +207,21 @@ export async function getArticleDetail(slug: string): Promise<ArticleDetailData>
   cacheTag("articles", `article:${slug}`);
 
   return requestJson<ArticleDetailData>(`/api/ec/articles/${encodeURIComponent(slug)}`);
+}
+
+export async function getAuthorPageData(slug: string): Promise<AuthorPageData> {
+  "use cache";
+
+  cacheLife("content");
+  cacheTag("authors", "articles", `author:${slug}`);
+
+  return requestJson<AuthorPageData>(`/api/ec/authors/${encodeURIComponent(slug)}`);
+}
+
+export async function getSearchResults(query: string): Promise<SearchResultsData> {
+  const searchParams = new URLSearchParams({ q: query });
+
+  return requestJson<SearchResultsData>(`/api/ec/search?${searchParams.toString()}`);
 }
 
 export async function getSitemapEntries(): Promise<SitemapEntry[]> {

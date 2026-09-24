@@ -2,16 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
+import { getNavigationItems } from "@/lib/ec-api";
 
 export const metadata: Metadata = {
   title: "Account Login | Everest Chronicle",
   description: "Sign in to access your Everest Chronicle subscription, contributor dashboard, and field dispatches.",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const navigationItems = await getNavigationItems();
+
   return (
     <main className="login-page-wrapper">
-      <SiteHeader />
+      <SiteHeader navigationItems={navigationItems} />
 
       <div className="login-shell">
         <div className="login-card">
@@ -86,7 +89,7 @@ export default function LoginPage() {
           <div className="login-footer-notice">
             <p>
               Need subscriber access or assistance?{" "}
-              <Link href="/category/expeditions" className="login-accent-link">
+              <Link href="/category/expedition" className="login-accent-link">
                 Explore our stories
               </Link>{" "}
               or contact <span className="login-contact-email">desk@everestchronicle.com</span>.

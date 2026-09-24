@@ -5,7 +5,7 @@ import Image from "next/image";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import Pagination from "@/components/ui/Pagination";
-import { categoryRegistry } from "@/data/categories";
+import { EcApiError, getCategoryPageData, getNavigationItems } from "@/lib/ec-api";
 
 interface PageProps {
   params: Promise<{ subcategory: string }>;
@@ -14,59 +14,92 @@ interface PageProps {
 
 export const instant = false;
 
+function parsePage(value?: string): number {
+  return Math.max(1, Number.parseInt(value || "1", 10) || 1);
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { subcategory } = await params;
-  const data = categoryRegistry[subcategory.toLowerCase()];
-  if (!data) {
-    return {
-      title: "Media Section Not Found | Everest Chronicle",
-    };
-  }
 
-  return {
-    title: `${data.title} | Media | Everest Chronicle`,
-    description: data.description,
-    openGraph: {
-      title: `${data.title} | Media | Everest Chronicle`,
-      description: data.description,
-      type: "website",
-      url: `https://everestchronicle.com/media/${subcategory}`,
-    },
-  };
+  try {
+    const data = await getCategoryPageData(subcategory, 1);
+
+    return {
+      title: `${data.category.title} | Media | Everest Chronicle`,
+      description: data.category.description,
+      openGraph: {
+        title: `${data.category.title} | Media | Everest Chronicle`,
+        description: data.category.description,
+        type: "website",
+        url: `https://everestchronicle.com/media/${subcategory}`,
+      },
+    };
+  } catch (error) {
+    if (error instanceof EcApiError && error.status === 404) {
+      return {
+        title: "Media Section Not Found | Everest Chronicle",
+      };
+    }
+
+    throw error;
+  }
 }
 
 export default async function MediaSubcategoryPage({ params, searchParams }: PageProps) {
   const { subcategory } = await params;
-  const categoryData = categoryRegistry[subcategory.toLowerCase()];
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const currentPage = parsePage(resolvedSearchParams?.page);
+
+  let categoryData;
+
+  let navigationItems;
+
+  try {
+    [categoryData, navigationItems] = await Promise.all([
+      getCategoryPageData(subcategory, currentPage),
+      getNavigationItems(),
+    ]);
+  } catch (error) {
+    if (error instanceof EcApiError && error.status === 404) {
+      notFound();
+    }
+
+    throw error;
+  }
 
   if (!categoryData) {
     notFound();
   }
 
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const currentPage = Math.max(1, parseInt(resolvedSearchParams?.page || "1", 10) || 1);
+  const { category, articles, pagination } = categoryData;
 
-  // Derive total pages from registry count
-  const countMatch = categoryData.count.match(/of\s+(\d+)\s+results/i);
-  const totalResults = countMatch ? parseInt(countMatch[1], 10) : 30;
-  const itemsPerPage = 10;
-  const totalPages = Math.max(1, Math.ceil(totalResults / itemsPerPage));
+  if (!category) {
+    notFound();
+  }
+
+  if (!articles) {
+    notFound();
+  }
 
   return (
     <main id="top">
-      <SiteHeader activeSlug="media" />
+      <SiteHeader activeSlug="media" navigationItems={navigationItems} />
 
       <div className="category-page-shell">
         <header className="category-page-header">
           <div className="category-breadcrumb">
-            <Link href="/media">Media</Link> &gt; <span>{categoryData.title}</span>
+            <Link href="/category/media">Media</Link> &gt; <span>{category.title}</span>
           </div>
-          <h1 className="category-main-title">{categoryData.title}</h1>
-          <p className="category-results-count">{categoryData.count}</p>
+          <h1 className="category-main-title">{category.title}</h1>
+          <p className="category-results-count">
+            {pagination.total === 0
+              ? "No results"
+              : `Showing ${Math.min(pagination.page * pagination.perPage, pagination.total)} of ${pagination.total} results`}
+          </p>
         </header>
 
-        <section className="category-articles-list" aria-label={`${categoryData.title} stories`}>
-          {categoryData.stories.map((story) => (
+        <section className="category-articles-list" aria-label={`${category.title} stories`}>
+          {articles.map((story) => (
             <article key={story.id} className="category-article-card">
               <Link
                 href={`#${story.slug}`}
@@ -126,7 +159,7 @@ export default async function MediaSubcategoryPage({ params, searchParams }: Pag
 
         <Pagination
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={pagination.totalPages}
           baseUrl={`/media/${subcategory.toLowerCase()}`}
         />
       </div>

@@ -2,11 +2,11 @@ import Link from "next/link";
 import MediaDropdown from "./MediaDropdown";
 import MobileNav from "./MobileNav";
 import SearchBox from "@/components/ui/SearchBox";
-import { navigationConfig } from "@/data/navigation";
+import type { NavigationItem } from "@/lib/ec-api";
 
-export default function Navigation() {
-  const mainLinks = navigationConfig.filter((item) => !item.children);
-  const mediaItem = navigationConfig.find((item) => item.children);
+export default function Navigation({ items = [] }: { items?: NavigationItem[] }) {
+  const mainLinks = items.filter((item) => !item.children);
+  const mediaItem = items.find((item) => item.children);
 
   return (
     <nav aria-label="Main Navigation" className="w-full">
@@ -35,12 +35,11 @@ export default function Navigation() {
         {/* Search area aligned on right */}
         <div className="flex items-center pl-4">
           <SearchBox />
-          uytuyti
         </div>
       </div>
 
       {/* Responsive Mobile / Tablet Navigation */}
-      <MobileNav items={navigationConfig} />
+      <MobileNav items={items} />
     </nav>
   );
 }

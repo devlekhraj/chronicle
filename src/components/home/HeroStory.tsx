@@ -3,14 +3,13 @@ import Link from "next/link";
 import Container from "@/components/layout/Container";
 import CategoryTag from "@/components/article/CategoryTag";
 import ArticleMeta from "@/components/article/ArticleMeta";
-import { heroStory } from "@/data/homepage";
 import type { ArticleSummary } from "@/types/content";
 
 interface HeroStoryProps {
-  story?: ArticleSummary;
+  story: ArticleSummary;
 }
 
-export default function HeroStory({ story = heroStory }: HeroStoryProps) {
+export default function HeroStory({ story }: HeroStoryProps) {
   return (
     <section
       aria-label="Lead Story"

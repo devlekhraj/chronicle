@@ -2,16 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import CategoryTag from "@/components/article/CategoryTag";
 import ArticleMeta from "@/components/article/ArticleMeta";
-import { featuredStory } from "@/data/homepage";
 import type { ArticleSummary } from "@/types/content";
 
 interface FeaturedStoryProps {
-  story?: ArticleSummary;
+  story: ArticleSummary;
   className?: string;
 }
 
 export default function FeaturedStory({
-  story = featuredStory,
+  story,
   className = "",
 }: FeaturedStoryProps) {
   return (

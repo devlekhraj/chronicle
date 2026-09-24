@@ -3,11 +3,11 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { ArticleDetail } from "@/data/articles";
+import type { ArticleSummary } from "@/types/content";
 import { getPaginationItems } from "@/components/ui/Pagination";
 
 interface AuthorStoriesListProps {
-  stories: ArticleDetail[];
+  stories: ArticleSummary[];
   itemsPerPage?: number;
   initialCount?: number;
 }
@@ -36,14 +36,16 @@ export default function AuthorStoriesList({
     <div className="author-latest-container" ref={listTopRef}>
       <div className="author-stories-list">
         {displayedStories.map((story) => {
+          const primaryCategory = story.categories?.[0];
           const categoryTitle =
-            story.categories && story.categories.length > 0
-              ? story.categories[0].title
-              : "Dispatches";
+            typeof primaryCategory === "string"
+              ? primaryCategory
+              : primaryCategory?.title
+                ?? "Dispatches";
           const categorySlug =
-            story.categories && story.categories.length > 0
-              ? story.categories[0].slug
-              : "dispatches";
+            typeof primaryCategory === "string"
+              ? primaryCategory.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+              : primaryCategory?.slug ?? "dispatches";
 
           return (
             <article className="author-story-row" key={story.slug}>
@@ -87,8 +89,8 @@ export default function AuthorStoriesList({
                   <time className="author-story-date">{story.publishedAt}</time>
                 </div>
 
-                {story.dek && (
-                  <p className="author-story-dek">{story.dek}</p>
+                {story.excerpt && (
+                  <p className="author-story-dek">{story.excerpt}</p>
                 )}
               </div>
             </article>

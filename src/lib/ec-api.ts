@@ -7,6 +7,7 @@ import type {
   ArticleSummary,
   AuthorProfile,
   AuthorMeta,
+  ImageMeta,
   SeoMeta,
   ShortItem,
 } from "@/types/content";
@@ -74,6 +75,7 @@ export interface ArticleDetailPayload {
   author?: string | null;
   authors?: AuthorMeta[];
   image?: string | null;
+  imageMeta?: ImageMeta | null;
   caption?: string | null;
   credit?: string | null;
   body: ArticleBodyBlock[];
@@ -111,6 +113,27 @@ export class EcApiError extends Error {
     this.name = "EcApiError";
     this.status = status;
   }
+}
+
+/**
+ * Whether an error represents an upstream 404.
+ *
+ * Deliberately structural rather than `instanceof`: these errors cross a
+ * `"use cache"` boundary, and the re-thrown error is not always an instance of
+ * this class even though it keeps `name: "EcApiError"` and `status`. A failed
+ * `instanceof` check here means a missing article escapes as a server error
+ * instead of rendering the not-found page.
+ */
+export function isNotFoundError(error: unknown): boolean {
+  if (error instanceof EcApiError) {
+    return error.status === 404;
+  }
+
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { status?: unknown }).status === 404
+  );
 }
 
 const API_BASE_URL = process.env.EC_API_BASE_URL || "https://admin-chronicle.test";

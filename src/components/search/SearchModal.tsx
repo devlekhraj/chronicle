@@ -169,7 +169,19 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {/* Modal Body */}
           <div className="search-modal-body">
             {/* Centered Search Input (~300px width) */}
-            <div className="search-input-wrap">
+            {/*
+              A real `form[role=search]` with a `<label>` rather than ARIA-only
+              semantics (docs §54, §55, §56). Filtering is client-side, so the
+              submit is intercepted.
+            */}
+            <form
+              className="search-input-wrap"
+              role="search"
+              onSubmit={(event) => event.preventDefault()}
+            >
+              <label htmlFor="site-search-input" className="sr-only">
+                Search Everest Chronicle
+              </label>
               <svg
                 className="search-input-icon"
                 width="20"
@@ -188,13 +200,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
               <input
                 ref={inputRef}
-                type="text"
+                id="site-search-input"
+                name="q"
+                type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search stories, authors, topics..."
                 className="search-modal-input"
-                aria-label="Search query"
-                role="searchbox"
+                autoComplete="off"
               />
 
               {query && (
@@ -223,7 +236,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </svg>
                 </button>
               )}
-            </div>
+            </form>
           {/* Empty Query State: Show Popular Topics */}
           {!trimmed && (
             <div className="search-suggestions-block">

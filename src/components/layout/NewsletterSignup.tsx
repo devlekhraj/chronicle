@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * Newsletter opt-in. Uses a real `<label>` for the field name (docs §55) —
+ * the `aria-label` was redundant alongside it and has been dropped.
+ */
 export default function NewsletterSignup() {
   return (
     <form className="newsletter-form" onSubmit={(event) => event.preventDefault()}>
@@ -8,9 +12,10 @@ export default function NewsletterSignup() {
       </label>
       <input
         id="newsletter-email-input"
+        name="email"
         type="email"
+        autoComplete="email"
         placeholder="Enter your email address"
-        aria-label="Email address"
       />
       <button type="submit">SUBSCRIBE</button>
     </form>

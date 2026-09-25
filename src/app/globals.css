@@ -189,7 +189,7 @@ select,
   font-size: 16px;
   /* 16px prevents unwanted iOS Safari zoom on focus */
   font-weight: 400;
-  line-height: normal;
+  line-height: 46px;
   color: var(--dark);
   background-color: #ffffff;
   border: 1px solid #d1d5db;
@@ -521,12 +521,28 @@ input[type="button"]:disabled,
 }
 
 .nav-wrap nav {
+  display: block;
+}
+
+/*
+  The list carries the row layout the <nav> used to own. Resetting the list
+  markers/indent keeps the visual output identical to the previous markup.
+*/
+.nav-wrap nav .nav-list {
   display: flex;
   gap: 20px;
   flex-wrap: nowrap;
   align-items: center;
   white-space: nowrap;
   border-bottom: 2px solid var(--white, #fff) !important;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-wrap nav .nav-list>li {
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-wrap nav a,
@@ -537,7 +553,7 @@ button.nav-action-link {
   box-sizing: border-box;
   padding: 8px;
   font:
-    500 18px/1.2 var(--font-condensed),
+    600 18px/1.2 var(--font-condensed),
     sans-serif;
   color: #141414bf;
   letter-spacing: -0.36px;
@@ -561,7 +577,7 @@ button.nav-action-link {
   border-bottom: 2px solid var(--white, #fff) !important;
 }
 
-.nav-wrap nav > a:first-child {
+.nav-wrap nav .nav-list>li:first-child>a {
   padding-left: 0;
 }
 
@@ -598,6 +614,8 @@ button.nav-action-link.is-active {
   left: 0;
   background: #ffffff;
   border-radius: 8px;
+  list-style: none;
+  margin: 0;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.12),
     0 1px 3px rgba(0, 0, 0, 0.06);
@@ -781,7 +799,7 @@ button.mobile-drawer-search-trigger svg,
   z-index: 99999;
 }
 
-body.modal-backdrop-open > main {
+body.modal-backdrop-open>main {
   filter: blur(1.05px);
   transform: translate3d(0, 0, 0);
   transition: filter 0.18s ease;
@@ -844,6 +862,7 @@ body.modal-backdrop-open > main {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -854,6 +873,7 @@ body.modal-backdrop-open > main {
     opacity: 0;
     transform: translateY(8px) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -882,6 +902,7 @@ body.modal-backdrop-open > main {
   padding: 0 40px 0 44px;
   font-family: var(--font-condensed), sans-serif;
   font-size: 16px;
+  line-height: 48px;
   color: var(--dark);
   background: #f8faf9;
   border: 1.5px solid #e2e8f0;
@@ -896,6 +917,13 @@ body.modal-backdrop-open > main {
   border-color: #e2e8f0 !important;
   box-shadow: none !important;
   outline: none !important;
+}
+
+/* The modal supplies its own clear button, so suppress the native one. */
+.search-modal-input::-webkit-search-cancel-button,
+.search-modal-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .search-clear-btn {
@@ -1331,16 +1359,7 @@ body.modal-backdrop-open > main {
 }
 
 .login-input {
-  width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  border: 1px solid #d1d5db;
-  border-radius: var(--radius);
-  font-family: var(--font-condensed), sans-serif;
-  font-size: 15px;
   color: #111827;
-  outline: none;
-  transition: all 0.15s ease;
 }
 
 .login-input:focus {
@@ -1449,7 +1468,7 @@ body.modal-backdrop-open > main {
   gap: 16px;
 }
 
-.hero h1 {
+.hero h2 {
   font:
     600 32px/1.2 var(--font-condensed),
     sans-serif;
@@ -1457,7 +1476,7 @@ body.modal-backdrop-open > main {
   margin: 0;
 }
 
-.hero h1 a:hover {
+.hero h2 a:hover {
   color: var(--brand);
 }
 
@@ -1493,36 +1512,58 @@ body.modal-backdrop-open > main {
   background: linear-gradient(135deg, #e5e9e7, #c9d0cd);
 }
 
-.tags {
+.tags,
+.category-article-tags {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.tags span {
+.tags a,
+.tags span,
+.category-article-tags a {
   background: #3fc18340;
   border-radius: 4px;
   padding: 2px 8px;
   font-size: 14px;
   line-height: 1.5;
+  color: var(--dark);
+  text-decoration: none;
+  /* transition: background 0.15s ease; */
+}
+
+.category-article-tags a:hover {
+  background: #3fc18366;
+  color: var(--brand);
 }
 
 .meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  color: #5f6368;
+  font-family: var(--font-condensed), sans-serif;
+  font-size: 14.5px;
 }
 
 .meta i,
 .meta time {
+  color: #5f6368;
   font-style: normal;
+  font-weight: 500;
 }
 
-.meta span {
-  background: #2a836a1a;
-  padding: 4px 8px;
-  border-radius: 4px;
+.meta-author {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.meta-sep {
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 300;
+  user-select: none;
 }
 
 .home-main-grid {
@@ -1579,7 +1620,7 @@ body.modal-backdrop-open > main {
 .feature-copy h2,
 .featured-copy h2 {
   font:
-    700 24px/1.25 var(--font-condensed),
+    600 32px/1.25 var(--font-condensed),
     sans-serif;
   letter-spacing: -0.48px;
   margin: 0;
@@ -2175,19 +2216,21 @@ body.modal-backdrop-open > main {
 /* Newsletter Section */
 .newsletter-section {
   width: 100%;
-  border-top: 1px solid #e5e7eb;
-  padding: 64px 0;
-  background: #f6fffc;
+  max-width: 620px;
+  margin: 0 auto;
+  /* padding: 64px 24px; */
+  /* background: #f6fffc; */
 }
 
 .newsletter-container {
-  max-width: 1348px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
+  text-align: left;
   flex-direction: column;
   align-items: flex-start;
-  text-align: left;
+  width: 100%;
+  display: flex;
+  background: #f6fffc;
+  padding: 24px;
+  margin: 28px 0;
 }
 
 .newsletter-inner {
@@ -2215,7 +2258,7 @@ body.modal-backdrop-open > main {
     700 36px/1.2 var(--font-condensed),
     sans-serif;
   letter-spacing: -0.5px;
-  color: var(--dark);
+  color: var(--brand) !important;
   margin: 0 0 14px 0;
   text-align: left;
 }
@@ -2328,6 +2371,9 @@ body.modal-backdrop-open > main {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .footer-nav-list a {
@@ -2393,17 +2439,14 @@ body.modal-backdrop-open > main {
 }
 
 .article-detail-tags a {
-  background: #d8ede7;
-  border-radius: var(--radius);
-  color: var(--brand);
-  font:
-    600 12px/1 var(--font-condensed),
-    sans-serif;
-  padding: 6px 9px;
-}
-
-.article-detail-tags a:hover {
-  background: #c6e5dc;
+  color: var(--dark);
+  background: #3fc18340;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  /* transition: background .15s; */
 }
 
 .article-detail-header h1 {
@@ -2432,8 +2475,10 @@ body.modal-backdrop-open > main {
 }
 
 .article-hero-figure img,
+.article-hero-image,
 .article-hero-placeholder {
   background: #d1d1d1;
+  border-radius: var(--radius);
   display: block;
   height: auto;
   width: 100%;
@@ -2484,6 +2529,12 @@ body.modal-backdrop-open > main {
 }
 
 .article-meta-readtime {
+  color: #5f6368;
+  font-weight: 500;
+}
+
+/* Only rendered when the revision is material (docs §34). */
+.article-meta-updated {
   color: #5f6368;
   font-weight: 500;
 }
@@ -2546,11 +2597,11 @@ body.modal-backdrop-open > main {
   white-space: pre-line;
 }
 
-.article-rich-text > *:first-child {
+.article-rich-text>*:first-child {
   margin-top: 0;
 }
 
-.article-rich-text > *:last-child {
+.article-rich-text>*:last-child {
   margin-bottom: 0;
 }
 
@@ -2600,6 +2651,7 @@ body.modal-backdrop-open > main {
 }
 
 .article-rich-text img {
+  border-radius: var(--radius);
   display: block;
   height: auto;
   max-width: 100%;
@@ -2737,7 +2789,7 @@ body.modal-backdrop-open > main {
   margin-top: 14px;
 }
 
-.article-inline-media-last-row > * {
+.article-inline-media-last-row>* {
   flex: 1 1 0;
   min-width: 0;
 }
@@ -2749,6 +2801,7 @@ body.modal-backdrop-open > main {
 .article-inline-media img,
 .article-inline-media-placeholder {
   background: #d1d1d1;
+  border-radius: var(--radius);
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10.6;
@@ -2779,6 +2832,7 @@ body.modal-backdrop-open > main {
 .article-wide-media img,
 .article-wide-media-placeholder {
   background: #d1d1d1;
+  border-radius: var(--radius);
   display: block;
   width: 100%;
   aspect-ratio: 16 / 7.2;
@@ -2916,81 +2970,16 @@ body.modal-backdrop-open > main {
 }
 
 /* ==========================================================================
-   Article Page – Prev / Next Navigation
-   ========================================================================== */
-.article-prev-next {
-  width: 100%;
-  padding: 40px 0 0;
-  border-top: 1px solid #e5e7eb;
-  margin-top: 40px;
-}
-
-.article-prev-next-inner {
-  max-width: 1348px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.article-nav-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-decoration: none;
-}
-
-.article-nav-card--empty {
-  pointer-events: none;
-}
-
-.article-nav-card--next {
-  align-items: flex-end;
-}
-
-.article-nav-direction {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font:
-    600 11px/1 var(--font-condensed),
-    sans-serif;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--brand);
-}
-
-.article-nav-title {
-  font:
-    700 20px/1.3 var(--font-condensed),
-    sans-serif;
-  color: var(--dark);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.15s ease;
-}
-
-.article-nav-card:hover .article-nav-title {
-  color: var(--dark);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* ==========================================================================
    Article Page – Related Articles
    ========================================================================== */
 .article-related {
   width: 100%;
-  padding: 56px 0 72px;
-  background: var(--alt);
-  margin-top: 48px;
+  padding: 48px 0 72px;
+  margin-top: 40px;
 }
 
 .article-related-inner {
-  max-width: 1348px;
+  max-width: 620px;
   margin: 0 auto;
   padding: 0 24px;
 }
@@ -3007,15 +2996,8 @@ body.modal-backdrop-open > main {
 
 .article-related-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 32px 22px;
-}
-
-@media (max-width: 1100px) {
-  .article-related-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 20px;
-  }
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px 20px;
 }
 
 @media (max-width: 640px) {
@@ -3070,6 +3052,16 @@ body.modal-backdrop-open > main {
   color: var(--dark);
   letter-spacing: -0.8px;
   margin: 0;
+}
+
+/* Short editorial category introduction (docs §22). */
+.category-intro {
+  color: #4b5563;
+  font:
+    400 16px/1.55 var(--font-condensed),
+    sans-serif;
+  margin: 0;
+  max-width: 720px;
 }
 
 .category-results-count {
@@ -3148,7 +3140,7 @@ body.modal-backdrop-open > main {
 
 .category-article-title {
   font:
-    700 26px/1.2 var(--font-condensed),
+    600 32px/1.2 var(--font-condensed),
     sans-serif;
   letter-spacing: -0.4px;
   margin: 0;
@@ -3167,22 +3159,6 @@ body.modal-backdrop-open > main {
 
 .category-article-tags {
   grid-area: tags;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.category-tag-pill {
-  display: inline-block;
-  font:
-    600 12px/1 var(--font-condensed),
-    sans-serif;
-  letter-spacing: 0.2px;
-  padding: 5px 10px;
-  background: #d8ede7;
-  color: var(--brand);
-  border-radius: var(--radius);
-  text-transform: capitalize;
 }
 
 .category-article-blurb {
@@ -3199,27 +3175,7 @@ body.modal-backdrop-open > main {
 
 .category-article-meta {
   grid-area: meta;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font:
-    400 13px/1 var(--font-condensed),
-    sans-serif;
-  color: #6b7280;
   margin-top: 4px;
-}
-
-.category-meta-date {
-  color: #6b7280;
-}
-
-.category-author-badge {
-  display: inline-block;
-  background: #f3f4f6;
-  color: #374151;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: var(--radius);
 }
 
 .category-load-more {
@@ -3543,6 +3499,15 @@ button.pagination-arrow {
     gap: 16px;
   }
 
+  .mobile-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   .mobile-nav-link {
     font:
       400 16px/1.3 var(--font-condensed),
@@ -3611,6 +3576,8 @@ button.pagination-arrow {
     padding-left: 18px;
     gap: 12px;
     animation: subnavFade 0.2s ease-out;
+    list-style: none;
+    margin: 0;
   }
 
   @keyframes subnavFade {
@@ -3652,7 +3619,7 @@ button.pagination-arrow {
     height: 320px;
   }
 
-  .hero h1 {
+  .hero h2 {
     font-size: 28px;
     line-height: 1.18;
     letter-spacing: 0;
@@ -3754,7 +3721,7 @@ button.pagination-arrow {
   }
 
   .newsletter-section {
-    padding: 56px 16px 48px;
+    padding: 56px 16px;
   }
 
   .newsletter-form {
@@ -3946,25 +3913,6 @@ button.pagination-arrow {
     padding: 10px 12px;
   }
 
-  .article-prev-next {
-    padding: 32px 0 0;
-    margin-top: 32px;
-  }
-
-  .article-prev-next-inner {
-    padding: 0 16px;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .article-nav-card {
-    padding: 16px;
-  }
-
-  .article-nav-title {
-    font-size: 20px;
-  }
-
   .article-related {
     padding: 40px 0 56px;
     margin-top: 36px;
@@ -3989,9 +3937,6 @@ button.pagination-arrow {
     grid-template-columns: 1fr;
   }
 
-  .article-prev-next-inner {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ==========================================================================
@@ -4534,7 +4479,7 @@ button.pagination-arrow {
 }
 
 @media (max-width: 640px) {
-  .hero h1 {
+  .hero h2 {
     font-size: 24px;
     line-height: 1.16;
   }
@@ -4548,5 +4493,240 @@ button.pagination-arrow {
   .card h3 {
     font-size: 16px;
     line-height: 1.25;
+  }
+}
+
+/* ==========================================================================
+   Breadcrumbs & Listing Section Headings
+   --------------------------------------------------------------------------
+   Breadcrumbs are navigation, so the shared component renders nav > ol > li
+   (docs §15). These rules only supply appearance.
+   ========================================================================== */
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-condensed), sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.breadcrumb-item a {
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: var(--brand);
+}
+
+.breadcrumb-item span[aria-current="page"] {
+  color: var(--dark);
+}
+
+.breadcrumb-sep {
+  color: #d1d5db;
+  font-weight: 400;
+}
+
+/* Listing pages: breadcrumb spans the full listing width. */
+.category-breadcrumb-nav {
+  padding-bottom: 18px;
+}
+
+/* Major section heading inside a listing page (docs §22). */
+.category-section-heading {
+  color: var(--dark);
+  font:
+    700 22px/1.2 var(--font-condensed),
+    sans-serif;
+  letter-spacing: -0.2px;
+  margin: 0 0 20px;
+}
+
+@media (max-width: 640px) {
+  .category-section-heading {
+    font-size: 19px;
+  }
+}
+
+/* ==========================================================================
+   Route Transitions
+   --------------------------------------------------------------------------
+   Page content is wrapped in React's <ViewTransition default="page">, so the
+   outgoing and incoming <main> crossfade while the header and footer stay
+   pinned. Without this, every navigation is a hard content swap ("blink").
+   ========================================================================== */
+:root {
+  --transition-exit: 100ms;
+  --transition-enter: 120ms;
+  --transition-rise: 0px;
+}
+
+/*
+  The document root holds the persistent chrome (header, footer). Clearing its
+  animation keeps those elements perfectly still and leaves the `.page` group
+  as the only animated region.
+*/
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Outgoing page: quick fade so it stops competing for attention. */
+::view-transition-old(.page) {
+  animation: var(--transition-exit) ease-in both page-fade-out;
+}
+
+/* Incoming page: slightly softer fade so content reads as arriving.
+   Raise --transition-rise above 0 to add a small upward move on entry. */
+::view-transition-new(.page) {
+  animation:
+    var(--transition-enter) ease-out both page-fade-in,
+    var(--transition-enter) ease-out both page-rise-in;
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes page-rise-in {
+  from {
+    translate: 0 var(--transition-rise);
+  }
+
+  to {
+    translate: 0 0;
+  }
+}
+
+/* Let clicks reach the live page while a transition is playing. */
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* ==========================================================================
+   Not Found (404)
+   ========================================================================== */
+.not-found-shell {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: 640px;
+  padding: 96px 24px 120px;
+  text-align: center;
+}
+
+.not-found-kicker {
+  color: var(--brand);
+  font:
+    700 13px/1 var(--font-condensed),
+    sans-serif;
+  letter-spacing: 0.18em;
+  margin: 0 0 16px;
+}
+
+.not-found-title {
+  color: var(--dark);
+  font:
+    700 40px/1.15 var(--font-condensed),
+    sans-serif;
+  letter-spacing: -0.5px;
+  margin: 0 0 14px;
+}
+
+.not-found-copy {
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 28px;
+  max-width: 520px;
+}
+
+.not-found-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.not-found-primary,
+.not-found-secondary {
+  border-radius: var(--radius);
+  display: inline-block;
+  font:
+    600 14px/1 var(--font-condensed),
+    sans-serif;
+  padding: 13px 22px;
+  text-decoration: none;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.not-found-primary {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.not-found-primary:hover {
+  background: #216b57;
+}
+
+.not-found-secondary {
+  background: #d8ede7;
+  color: var(--brand);
+}
+
+.not-found-secondary:hover {
+  background: #c6e5dc;
+}
+
+@media (max-width: 640px) {
+  .not-found-shell {
+    padding: 64px 16px 88px;
+  }
+
+  .not-found-title {
+    font-size: 28px;
   }
 }

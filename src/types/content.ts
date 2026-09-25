@@ -35,6 +35,18 @@ export interface SeoMeta {
   keywords?: string[];
 }
 
+/**
+ * Contextual image metadata supplied by the API. `alt` is the editorial alt
+ * text and should be preferred over the article title (docs §16).
+ */
+export interface ImageMeta {
+  url?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  credit?: string;
+}
+
 export interface ArticleCategory {
   title: string;
   slug: string;
@@ -47,8 +59,10 @@ export interface ArticleSummary {
   slug: string;
   excerpt?: string;
   image?: string;
+  imageMeta?: ImageMeta;
   categories?: (string | ArticleCategory)[];
   publishedAt?: string;
+  publishedAtIso?: string;
   updatedAt?: string;
   readTime?: string;
   author?: string | AuthorMeta;

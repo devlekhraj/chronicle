@@ -26,23 +26,34 @@ const footerFollow = [
   { title: "X (Twitter)", slug: "https://x.com" },
 ];
 
+/**
+ * Footer navigation is real navigation: each column is a `<nav>` containing a
+ * `<ul>` of `<a>`/`<Link>` (docs §3, §42). The column labels are `<p>`
+ * elements referenced by `aria-labelledby` rather than headings, so the footer
+ * does not inflate the document's heading outline.
+ */
 export default function SiteFooter() {
   return (
     <>
-      {/* Newsletter Signup Tier */}
-      <section className="newsletter-section">
+      {/* Newsletter Signup Tier — a complementary CTA, not a page section. */}
+      <section className="newsletter-section" aria-labelledby="newsletter-heading">
         <div className="newsletter-container">
-          <span className="newsletter-eyebrow">WEEKLY DISPATCH</span>
-          <h2 className="newsletter-heading">
-            The Himalayas, explained every week.
+          <span className="newsletter-eyebrow">STAY INFORMED</span>
+
+          <h2 className="newsletter-heading" id="newsletter-heading">
+            New stories from the Himalayas, delivered to your inbox.
           </h2>
+
           <p className="newsletter-desc">
-            Expeditions, climate, wildlife, and deep investigative stories
-            delivered directly to your inbox every Thursday morning.
+            Get notified when Everest Chronicle publishes new reporting on
+            expeditions, climate, conservation, culture, and the people shaping
+            the Himalayas.
           </p>
+
           <NewsletterSignup />
+
           <p className="newsletter-disclaimer">
-            Free weekly edition. Zero spam. Unsubscribe anytime.
+            Free news updates. No spam. Unsubscribe anytime.
           </p>
         </div>
       </section>
@@ -56,7 +67,7 @@ export default function SiteFooter() {
               <Link
                 href="/"
                 className="footer-logo-link"
-                aria-label="Everest Chronicle"
+                aria-label="Everest Chronicle home"
               >
                 <img
                   src="/brand/logo-footer.png"
@@ -75,45 +86,52 @@ export default function SiteFooter() {
             </div>
 
             {/* Column 2: Sections */}
-            <div className="footer-col">
-              <h3 className="footer-col-title">SECTIONS</h3>
-              <div className="footer-nav-list">
+            <nav className="footer-col" aria-labelledby="footer-sections-label">
+              <p className="footer-col-title" id="footer-sections-label">
+                SECTIONS
+              </p>
+              <ul className="footer-nav-list">
                 {footerSections.map((item) => (
-                  <Link href={`/category/${item.slug}`} key={item.slug}>
-                    {item.title}
-                  </Link>
+                  <li key={item.slug}>
+                    <Link href={`/category/${item.slug}`}>{item.title}</Link>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </nav>
 
             {/* Column 3: About */}
-            <div className="footer-col">
-              <h3 className="footer-col-title">ABOUT</h3>
-              <div className="footer-nav-list">
+            <nav className="footer-col" aria-labelledby="footer-about-label">
+              <p className="footer-col-title" id="footer-about-label">
+                ABOUT
+              </p>
+              <ul className="footer-nav-list">
                 {footerAbout.map((item) => (
-                  <Link href={`/${item.slug}`} key={item.slug}>
-                    {item.title}
-                  </Link>
+                  <li key={item.slug}>
+                    <Link href={`/${item.slug}`}>{item.title}</Link>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </nav>
 
             {/* Column 4: Follow */}
-            <div className="footer-col">
-              <h3 className="footer-col-title">FOLLOW</h3>
-              <div className="footer-nav-list">
+            <nav className="footer-col" aria-labelledby="footer-follow-label">
+              <p className="footer-col-title" id="footer-follow-label">
+                FOLLOW
+              </p>
+              <ul className="footer-nav-list">
                 {footerFollow.map((item) => (
-                  <a
-                    href={item.slug}
-                    key={item.title}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {item.title}
-                  </a>
+                  <li key={item.title}>
+                    <a
+                      href={item.slug}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.title}
+                    </a>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </nav>
           </div>
 
           {/* Bottom Bar */}

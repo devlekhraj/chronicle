@@ -4,7 +4,9 @@
   "scripts": {
     "dev": "NODE_EXTRA_CA_CERTS=\"$HOME/Library/Application Support/Herd/config/valet/CA/LaravelValetCASelfSigned.pem\" next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "seo:audit": "node scripts/seo-audit.mjs"
   },
   "engines": {
     "node": ">=22 <23"

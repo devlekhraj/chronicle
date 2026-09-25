@@ -8,13 +8,21 @@ interface ArticleCardProps {
   article: ArticleSummary;
   className?: string;
   imagePriority?: boolean;
+  /**
+   * Heading level is owned by the page's document outline, not the card
+   * (docs §5, §66). Cards nested under an `<h2>` section use the default `3`.
+   */
+  headingLevel?: 2 | 3 | 4;
 }
 
 export default function ArticleCard({
   article,
   className = "",
   imagePriority = false,
+  headingLevel = 3,
 }: ArticleCardProps) {
+  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4";
+
   return (
     <article className={`flex flex-col group ${className}`}>
       {/* Prominent Image Area */}
@@ -28,7 +36,7 @@ export default function ArticleCard({
           >
             <Image
               src={article.image}
-              alt={article.title}
+              alt={article.imageMeta?.alt ?? article.title}
               fill
               priority={imagePriority}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -50,15 +58,15 @@ export default function ArticleCard({
         </div>
       )}
 
-      {/* Title */}
-      <Link
-        href={`/${article.slug}`}
-        className="block focus:outline-none mb-2"
-      >
-        <h3 className="text-[15px] sm:text-base font-bold leading-snug tracking-tight text-text-primary group-hover:text-brand transition-colors line-clamp-3">
+      {/* Title — the link lives inside the heading (docs §5). */}
+      <Heading className="text-[15px] sm:text-base font-bold leading-snug tracking-tight text-text-primary mb-2">
+        <Link
+          href={`/${article.slug}`}
+          className="focus:outline-none hover:text-brand transition-colors"
+        >
           {article.title}
-        </h3>
-      </Link>
+        </Link>
+      </Heading>
 
       {/* Excerpt */}
       {article.excerpt && (
@@ -69,7 +77,11 @@ export default function ArticleCard({
 
       {/* Date & Author Meta */}
       <div className="mt-auto">
-        <ArticleMeta date={article.publishedAt} author={article.author} />
+        <ArticleMeta
+          date={article.publishedAt}
+          dateTime={article.publishedAtIso}
+          author={article.author}
+        />
       </div>
     </article>
   );

@@ -25,13 +25,15 @@ function normalizeNavItems(items: NavigationItem[]): HeaderNavItem[] {
     { title: "Home", slug: "home", href: "/" },
     ...items.map((item) => ({
       title: item.label,
-      slug: navItemSlug(item),
+      slug: item.slug || navItemSlug(item),
       href: item.href,
-      children: item.children?.map((child) => ({
-        title: child.label,
-        slug: navItemSlug(child),
-        href: child.href,
-      })),
+      children: item.children && item.children.length > 0
+        ? item.children.map((child) => ({
+            title: child.label,
+            slug: child.slug || navItemSlug(child),
+            href: child.href,
+          }))
+        : undefined,
     })),
   ];
 }
@@ -99,19 +101,21 @@ function PathnameReader({
 export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobileMediaOpen, setIsMobileMediaOpen] = useState(false);
+  const [openMobileAccordions, setOpenMobileAccordions] = useState<Record<string, boolean>>({});
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+
+  const toggleMobileAccordion = (slug: string) => {
+    setOpenMobileAccordions((prev) => ({
+      ...prev,
+      [slug]: !prev[slug],
+    }));
+  };
+
   const navItems = useMemo(
-    () => navigationItems && navigationItems.length > 0
-      ? normalizeNavItems(navigationItems)
-      : [],
+    () => normalizeNavItems(navigationItems ?? []),
     [navigationItems],
   );
-
-  const mediaNavItem = navItems.find((item) => item.children && item.children.length > 0);
-  const mediaDropdownItems = mediaNavItem?.children ?? [];
-  const primaryNavItems = navItems.filter((item) => item.slug === "home" || item !== mediaNavItem);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -157,9 +161,7 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
           ? "home"
           : pathname.startsWith("/category/")
             ? pathname.split("/")[2] || ""
-            : pathname.startsWith("/media")
-              ? "media"
-              : "");
+            : "");
 
     return (
       <>
@@ -223,11 +225,41 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
 
               <nav aria-label="Primary navigation">
                 <ul className="nav-list">
-                  {primaryNavItems.map((item) => {
-                    const isActive =
-                      item.slug === "home"
-                        ? pathname === "/"
-                        : currentCategory === item.slug;
+                  {navItems.map((item) => {
+                    const hasChildren = Boolean(item.children && item.children.length > 0);
+                    const isParentActive = currentCategory === item.slug;
+                    const isChildActive = hasChildren && item.children?.some((child) => currentCategory === child.slug);
+                    const isActive = item.slug === "home" ? pathname === "/" : (isParentActive || isChildActive);
+
+                    if (hasChildren) {
+                      return (
+                        <li key={item.slug} className="nav-dropdown-wrap">
+                          <Link
+                            href={item.href}
+                            className={`nav-dropdown-trigger ${isActive ? "is-active" : ""}`}
+                          >
+                            <span>{item.title}</span>
+                            <ChevronDown size={14} strokeWidth={2.2} className="nav-dropdown-chevron" aria-hidden="true" />
+                          </Link>
+                          <ul className="nav-dropdown-menu">
+                            {item.children!.map((child) => {
+                              const isSubActive = currentCategory === child.slug;
+                              return (
+                                <li key={child.slug}>
+                                  <Link
+                                    href={child.href}
+                                    className={isSubActive ? "is-active" : ""}
+                                  >
+                                    {child.title}
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </li>
+                      );
+                    }
+
                     return (
                       <li key={item.slug}>
                         <Link
@@ -239,23 +271,6 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
                       </li>
                     );
                   })}
-                  <li className="nav-dropdown-wrap">
-                    <Link
-                      href={mediaNavItem?.href ?? "/category/media"}
-                      className={`nav-dropdown-trigger ${
-                        currentCategory === (mediaNavItem?.slug ?? "media") ? "is-active" : ""
-                      }`}
-                    >
-                      {mediaNavItem?.title ?? "Media"}
-                    </Link>
-                    <ul className="nav-dropdown-menu">
-                      {mediaDropdownItems.map((item) => (
-                        <li key={item.slug}>
-                          <Link href={item.href}>{item.title}</Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
                 </ul>
               </nav>
             </div>
@@ -323,11 +338,58 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
 
           <nav className="mobile-drawer-nav" aria-label="Mobile navigation">
             <ul className="mobile-nav-list">
-              {primaryNavItems.map((item) => {
-                const isActive =
-                  item.slug === "home"
-                    ? pathname === "/"
-                    : currentCategory === item.slug;
+              {navItems.map((item) => {
+                const hasChildren = Boolean(item.children && item.children.length > 0);
+                const isParentActive = currentCategory === item.slug;
+                const isChildActive = hasChildren && item.children?.some((child) => currentCategory === child.slug);
+                const isActive = item.slug === "home" ? pathname === "/" : (isParentActive || isChildActive);
+
+                if (hasChildren) {
+                  const isOpen = Boolean(openMobileAccordions[item.slug]);
+                  return (
+                    <li key={item.slug} className="mobile-nav-group">
+                      <button
+                        type="button"
+                        className="mobile-nav-link mobile-nav-accordion-btn"
+                        onClick={() => toggleMobileAccordion(item.slug)}
+                        aria-expanded={isOpen}
+                      >
+                        <span className={isActive ? "active-indicator" : ""}>{item.title}</span>
+                        <ChevronDown
+                          size={16}
+                          strokeWidth={2.2}
+                          className={`accordion-chevron ${isOpen ? "is-open" : ""}`}
+                          aria-hidden="true"
+                        />
+                      </button>
+                      {isOpen && (
+                        <ul className="mobile-subnav-list">
+                          <li key={`${item.slug}-all`}>
+                            <Link
+                              href={item.href}
+                              onClick={() => setIsMenuOpen(false)}
+                              className={`mobile-subnav-link ${currentCategory === item.slug ? "is-active" : ""}`}
+                            >
+                              All {item.title}
+                            </Link>
+                          </li>
+                          {item.children!.map((child) => (
+                            <li key={child.slug}>
+                              <Link
+                                href={child.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                className={`mobile-subnav-link ${currentCategory === child.slug ? "is-active" : ""}`}
+                              >
+                                {child.title}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                }
+
                 return (
                   <li key={item.slug}>
                     <Link
@@ -345,41 +407,6 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
                 );
               })}
             </ul>
-
-            <div className="mobile-nav-group">
-              <button
-                type="button"
-                className="mobile-nav-link mobile-nav-accordion-btn"
-                onClick={() => setIsMobileMediaOpen(!isMobileMediaOpen)}
-                aria-expanded={isMobileMediaOpen}
-              >
-                <span>Media</span>
-                <ChevronDown
-                  size={16}
-                  strokeWidth={2.2}
-                  className={`accordion-chevron ${isMobileMediaOpen ? "is-open" : ""}`}
-                  aria-hidden="true"
-                />
-              </button>
-              {isMobileMediaOpen && (
-                <ul className="mobile-subnav-list">
-                  {mediaDropdownItems.map((item) => (
-                    <li key={item.slug}>
-                      <Link
-                        href={item.href}
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          setIsMobileMediaOpen(false);
-                        }}
-                        className="mobile-subnav-link"
-                      >
-                        {item.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
 
             <button
               type="button"

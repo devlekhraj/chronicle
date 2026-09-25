@@ -81,6 +81,7 @@ export default function ArticleCard({
           date={article.publishedAt}
           dateTime={article.publishedAtIso}
           author={article.author}
+          authors={article.authors}
         />
       </div>
     </article>

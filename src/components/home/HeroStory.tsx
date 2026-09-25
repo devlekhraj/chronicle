@@ -50,7 +50,12 @@ export default function HeroStory({ story }: HeroStoryProps) {
 
             {/* Date & Author Pill */}
             <div className="mt-5">
-              <ArticleMeta date={story.publishedAt} author={story.author} />
+              <ArticleMeta
+                date={story.publishedAt}
+                dateTime={story.publishedAtIso}
+                author={story.author}
+                authors={story.authors}
+              />
             </div>
           </div>
 

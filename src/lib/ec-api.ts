@@ -13,12 +13,16 @@ import type {
 } from "@/types/content";
 
 export interface NavigationChild {
+  id?: number | string;
   label: string;
+  slug?: string;
   href: string;
 }
 
 export interface NavigationItem {
+  id?: number | string;
   label: string;
+  slug?: string;
   href: string;
   children?: NavigationChild[];
 }
@@ -196,7 +200,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   "use cache";
 
   cacheLife("content");
-  cacheTag("homepage", "articles", "categories");
+  cacheTag("homepage", "articles", "categories", "shorts");
 
   return requestJson<HomePageData>("/api/ec/home");
 }

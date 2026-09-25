@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ViewTransition } from "react";
 import { ChevronRight } from "lucide-react";
 import ShortsSection from "@/components/home/ShortsSection";
+import ArticleMeta from "@/components/article/ArticleMeta";
 import { getHomePageData, type HomePageData } from "@/lib/ec-api";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_URL } from "@/lib/seo";
 import type { ArticleSummary } from "@/types/content";
@@ -87,16 +88,14 @@ function Meta({
   date?: string;
   /** ISO publication timestamp for the machine-readable `<time datetime>`. */
   dateTime?: string;
-  author?: string | { name: string };
+  author?: string | { name: string; slug?: string };
 }) {
-  const authorName =
-    typeof author === "string" ? author : author?.name || "Everest Chronicle";
   return (
-    <div className="meta">
-      <span className="meta-author">By {authorName}</span>
-      <span className="meta-sep" aria-hidden="true">|</span>
-      <time dateTime={dateTime}>{date}</time>
-    </div>
+    <ArticleMeta
+      date={date}
+      dateTime={dateTime}
+      author={author}
+    />
   );
 }
 

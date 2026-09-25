@@ -66,7 +66,12 @@ export default function FeaturedStory({
           )}
 
           <div className="mt-4">
-            <ArticleMeta date={story.publishedAt} author={story.author} />
+            <ArticleMeta
+              date={story.publishedAt}
+              dateTime={story.publishedAtIso}
+              author={story.author}
+              authors={story.authors}
+            />
           </div>
         </div>
       </div>

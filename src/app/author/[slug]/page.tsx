@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       path: `/author/${author.slug}`,
       type: "profile",
       images: [
-        { url: author.avatar, width: 600, height: 600, alt: author.name },
+        { url: author.avatar || "/images/homepage/sherpa-featured.jpg", width: 600, height: 600, alt: author.name },
       ],
     });
   } catch (error) {
@@ -102,7 +102,7 @@ export default async function AuthorDetailPage({ params }: PageProps) {
 
             <div className="author-hero-avatar-wrap">
               <Image
-                src={author.avatar}
+                src={author.avatar || "/images/homepage/sherpa-featured.jpg"}
                 alt={author.name}
                 width={120}
                 height={120}
@@ -130,7 +130,7 @@ export default async function AuthorDetailPage({ params }: PageProps) {
             <div className="author-hero-meta">
               <span>{author.location || "Kathmandu, Nepal"}</span>
               <span className="author-meta-dot" aria-hidden="true">·</span>
-              <span>{articles.length || author.storyCount || 12} Stories</span>
+              <span>{author.storyCount ?? (articles.length || 12)} Stories</span>
               <span className="author-meta-dot" aria-hidden="true">·</span>
               <span>Since {author.sinceYear || 2019}</span>
             </div>

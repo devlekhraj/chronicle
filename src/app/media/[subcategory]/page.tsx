@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import Pagination from "@/components/ui/Pagination";
+import ArticleMeta from "@/components/article/ArticleMeta";
 import { getCategoryPageData, isNotFoundError } from "@/lib/ec-api";
 import { buildPageMetadata, paginatedPath } from "@/lib/seo";
 
@@ -177,22 +178,13 @@ export default async function MediaSubcategoryPage({ params, searchParams }: Pag
                     <p className="category-article-blurb">{story.excerpt}</p>
                   )}
 
-                  <div className="category-article-meta meta">
-                    {story.author && (
-                      <span className="meta-author">
-                        By{" "}
-                        {typeof story.author === "string" ? story.author : story.author.name}
-                      </span>
-                    )}
-                    {story.author && story.publishedAt && (
-                      <span className="meta-sep" aria-hidden="true">|</span>
-                    )}
-                    {story.publishedAt && (
-                      <time dateTime={story.publishedAtIso}>
-                        {story.publishedAt}
-                      </time>
-                    )}
-                  </div>
+                  <ArticleMeta
+                    date={story.publishedAt}
+                    dateTime={story.publishedAtIso}
+                    author={story.author}
+                    authors={story.authors}
+                    className="category-article-meta"
+                  />
                 </div>
               </article>
             ))}

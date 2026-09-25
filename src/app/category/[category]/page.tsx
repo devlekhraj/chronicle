@@ -5,6 +5,7 @@ import Link from "next/link";
 import JsonLd from "@/components/seo/JsonLd";
 import SafeImage from "@/components/ui/SafeImage";
 import Pagination from "@/components/ui/Pagination";
+import ArticleMeta from "@/components/article/ArticleMeta";
 import { getCategoryPageData, isNotFoundError } from "@/lib/ec-api";
 import { breadcrumbJsonLd, buildPageMetadata, paginatedPath } from "@/lib/seo";
 import type { ArticleSummary } from "@/types/content";
@@ -200,22 +201,13 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   </div>
                 )}
 
-                <div className="category-article-meta meta">
-                  {story.author && (
-                    <span className="meta-author">
-                      By{" "}
-                      {typeof story.author === "string" ? story.author : story.author.name}
-                    </span>
-                  )}
-                  {story.author && story.publishedAt && (
-                    <span className="meta-sep" aria-hidden="true">|</span>
-                  )}
-                  {story.publishedAt && (
-                    <time dateTime={story.publishedAtIso}>
-                      {story.publishedAt}
-                    </time>
-                  )}
-                </div>
+                <ArticleMeta
+                  date={story.publishedAt}
+                  dateTime={story.publishedAtIso}
+                  author={story.author}
+                  authors={story.authors}
+                  className="category-article-meta"
+                />
               </article>
             ))}
           </section>

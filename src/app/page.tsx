@@ -295,10 +295,10 @@ export default async function Home() {
                       </h2>
                       {story.excerpt && <p>{story.excerpt}</p>}
                       <Meta
-        date={story.publishedAt}
-        dateTime={story.publishedAtIso}
-        author={story.author}
-      />
+                        date={story.publishedAt}
+                        dateTime={story.publishedAtIso}
+                        author={story.author}
+                      />
                     </div>
                   </article>
                 ))}

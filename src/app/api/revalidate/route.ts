@@ -31,12 +31,16 @@ export async function POST(request: NextRequest) {
     .filter((tag) => tag.length > 0 && tag.length <= 256)
     .slice(0, MAX_TAGS_PER_REQUEST);
 
+  const isImmediate = (body as { immediate?: unknown }).immediate !== false;
+  const config = isImmediate ? { expire: 0 } : "max";
+
   for (const tag of normalizedTags) {
-    revalidateTag(tag, "max");
+    revalidateTag(tag, config);
   }
 
   return Response.json({
     revalidated: true,
     tags: normalizedTags,
+    mode: isImmediate ? "immediate" : "stale-while-revalidate",
   });
 }

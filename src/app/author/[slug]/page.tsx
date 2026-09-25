@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ViewTransition } from "react";
 import { notFound } from "next/navigation";
+import { Mail } from "lucide-react";
 import AuthorStoriesList from "@/components/author/AuthorStoriesList";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import { getAuthorPageData, isNotFoundError } from "@/lib/ec-api";
@@ -184,10 +185,7 @@ export default async function AuthorDetailPage({ params }: PageProps) {
                   className="article-share-btn article-share-btn--email"
                   aria-label="Email"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <rect width="20" height="16" x="2" y="4" rx="2" />
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                  </svg>
+                  <Mail size={16} aria-hidden="true" />
                   <span>Email</span>
                 </a>
               )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import SearchBox from "@/components/ui/SearchBox";
 import type { NavigationItem } from "@/lib/ec-api";
 
@@ -23,29 +24,11 @@ export default function MobileNav({ items }: MobileNavProps) {
           aria-expanded={mobileMenuOpen}
           aria-label="Toggle navigation menu"
         >
-          <svg
-            className="h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            {mobileMenuOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
+          {mobileMenuOpen ? (
+            <X size={20} className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <Menu size={20} className="h-5 w-5" aria-hidden="true" />
+          )}
           <span className="text-sm font-medium font-sans">Menu</span>
         </button>
 

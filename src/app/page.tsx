@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { ViewTransition } from "react";
+import { ChevronRight } from "lucide-react";
 import ShortsSection from "@/components/home/ShortsSection";
 import { getHomePageData, type HomePageData } from "@/lib/ec-api";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_URL } from "@/lib/seo";
@@ -173,19 +174,7 @@ function Section({
           className="next"
           aria-label={`View all ${category.title} stories`}
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
+          <ChevronRight size={20} strokeWidth={2.2} aria-hidden="true" />
         </Link>
       </div>
     </section>

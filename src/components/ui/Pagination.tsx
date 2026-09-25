@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -79,7 +80,7 @@ export default function Pagination({
               className="pagination-arrow pagination-prev"
               aria-label="Go to previous page"
             >
-              <span aria-hidden="true">«</span>
+              <ChevronLeft size={16} aria-hidden="true" />
               <span className="pagination-arrow-text">Previous</span>
             </Link>
           ) : (
@@ -87,7 +88,7 @@ export default function Pagination({
               className="pagination-arrow pagination-prev is-disabled"
               aria-disabled="true"
             >
-              <span aria-hidden="true">«</span>
+              <ChevronLeft size={16} aria-hidden="true" />
               <span className="pagination-arrow-text">Previous</span>
             </span>
           )}
@@ -129,7 +130,7 @@ export default function Pagination({
               aria-label="Go to next page"
             >
               <span className="pagination-arrow-text">Next</span>
-              <span aria-hidden="true">»</span>
+              <ChevronRight size={16} aria-hidden="true" />
             </Link>
           ) : (
             <span
@@ -137,7 +138,7 @@ export default function Pagination({
               aria-disabled="true"
             >
               <span className="pagination-arrow-text">Next</span>
-              <span aria-hidden="true">»</span>
+              <ChevronRight size={16} aria-hidden="true" />
             </span>
           )}
         </li>

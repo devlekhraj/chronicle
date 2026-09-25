@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Search } from "lucide-react";
 
 interface SearchBoxProps {
   className?: string;
@@ -39,21 +40,7 @@ export default function SearchBox({
         aria-label="Submit search"
         className="flex h-full w-8 shrink-0 items-center justify-center border-l border-[var(--ec-stroke-dark-more-weaker)] text-[var(--ec-dark-100)] hover:text-[var(--ec-brand-100)] transition-colors cursor-pointer"
       >
-        {/* Dark search icon via lightweight inline SVG matching Section 26 & 27 */}
-        <svg
-          className="h-3.5 w-3.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
+        <Search size={14} className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
     </form>
   );

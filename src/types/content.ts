@@ -76,7 +76,16 @@ export interface ShortItem {
   slug: string;
   image?: string;
   videoUrl?: string;
+  redirectUrl?: string | null;
   location?: string;
+  description?: string;
+  publishedAt?: string;
+  author?: {
+    id?: string | number;
+    name?: string;
+    slug?: string;
+    avatar?: string | null;
+  } | null;
 }
 
 /* ── Article body blocks ──────────────────────────────────────────────────

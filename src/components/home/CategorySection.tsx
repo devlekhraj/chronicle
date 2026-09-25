@@ -1,5 +1,6 @@
 import SectionHeading from "@/components/ui/SectionHeading";
 import ArticleCard from "@/components/article/ArticleCard";
+import { ChevronRight } from "lucide-react";
 import type { ArticleSummary } from "@/types/content";
 
 interface CategorySectionProps {
@@ -37,20 +38,7 @@ export default function CategorySection({
             aria-label={`Next ${title} stories`}
             className="p-1 text-brand hover:opacity-80 transition-opacity cursor-pointer focus:outline-none"
           >
-            <svg
-              className="h-8 w-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
+            <ChevronRight size={32} strokeWidth={2.5} className="h-8 w-8" aria-hidden="true" />
           </button>
         </div>
       </div>

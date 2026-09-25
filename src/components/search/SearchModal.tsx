@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
+import { Search, X } from "lucide-react";
 import type { ArticleSummary, AuthorProfile } from "@/types/content";
 
 interface SearchModalProps {
@@ -150,20 +151,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             className="search-modal-close-btn"
             aria-label="Close search modal"
           >
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <X size={22} strokeWidth={2.2} aria-hidden="true" />
           </button>
 
           {/* Modal Body */}
@@ -182,21 +170,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <label htmlFor="site-search-input" className="sr-only">
                 Search Everest Chronicle
               </label>
-              <svg
+              <Search
+                size={20}
+                strokeWidth={2.2}
                 className="search-input-icon"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
                 aria-hidden="true"
-              >
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              />
 
               <input
                 ref={inputRef}
@@ -220,20 +199,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   className="search-clear-btn"
                   aria-label="Clear search query"
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
+                  <X size={18} strokeWidth={2.2} aria-hidden="true" />
                 </button>
               )}
             </form>

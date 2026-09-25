@@ -163,19 +163,13 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
 
     return (
       <>
-        {/*
-          One `<header>` landmark wrapping the branding and the primary
-          navigation, as required by docs §2 and §3. The inner bar keeps the
-          sticky positioning.
-        */}
-        <header className="site-header">
-          {/* Upper tier: Centered Brand Logo (Desktop only) */}
-          <div className="header-logo-row desktop-only">
-            <Logo />
-          </div>
+        {/* Upper tier: Centered Brand Logo (Desktop only) */}
+        <div className="header-logo-row desktop-only">
+          <Logo />
+        </div>
 
-          {/* Navigation Bar: Sticky on Desktop, Compact on Mobile */}
-          <div className={`sticky-nav-bar ${isScrolled ? "is-scrolled" : ""}`}>
+        {/* Navigation Bar: Sticky on Desktop, Compact on Mobile */}
+        <header className={`sticky-nav-bar ${isScrolled ? "is-scrolled" : ""}`}>
           {/* Reading Progress Bar */}
           {isArticlePage && (
             <div
@@ -285,7 +279,6 @@ export default function SiteHeader({ activeSlug, navigationItems }: SiteHeaderPr
                 <span>Login</span>
               </Link>
             </div>
-          </div>
           </div>
         </header>
 

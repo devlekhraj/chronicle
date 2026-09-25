@@ -455,7 +455,7 @@ input[type="button"]:disabled,
   border-bottom: none;
   transition:
     background-color 0.25s ease,
-    box-shadow 0.25s ease;
+    border-color 0.25s ease;
   /* needed for the progress bar absolute positioning */
   overflow: visible;
 }
@@ -475,8 +475,7 @@ input[type="button"]:disabled,
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  border-bottom: none;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .nav-wrap {
@@ -3674,7 +3673,7 @@ button.pagination-arrow {
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     flex-direction: column;
     padding: 16px 0 32px;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+    border-right: 1px solid #e5e7eb;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }

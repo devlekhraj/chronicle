@@ -142,4 +142,22 @@ export type ArticleBodyBlock =
       striped?: boolean;
     };
 
+export interface LiveUpdateBanner {
+  url: string;
+  alt?: string | null;
+  caption?: string | null;
+  credit?: string | null;
+}
+
+export interface LiveUpdateItem {
+  id: string;
+  title?: string | null;
+  subTitle?: string | null;
+  publishedAt?: string | null;
+  publishedAtIso?: string | null;
+  banner?: LiveUpdateBanner | null;
+  body: ArticleBodyBlock[];
+  author?: string | null;
+}
+
 

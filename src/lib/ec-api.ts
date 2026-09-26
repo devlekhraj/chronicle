@@ -8,6 +8,7 @@ import type {
   AuthorProfile,
   AuthorMeta,
   ImageMeta,
+  LiveUpdateItem,
   SeoMeta,
   ShortItem,
 } from "@/types/content";
@@ -83,6 +84,7 @@ export interface ArticleDetailPayload {
   caption?: string | null;
   credit?: string | null;
   body: ArticleBodyBlock[];
+  liveUpdates?: LiveUpdateItem[];
   meta?: SeoMeta;
 }
 

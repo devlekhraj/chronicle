@@ -10,6 +10,7 @@ import {
   type ArticleBodyBlock,
   type ArticleSummary,
   type AuthorMeta,
+  type LiveUpdateItem,
   type SeoMeta,
 } from "@/types/content";
 import { getArticleDetail, isNotFoundError } from "@/lib/ec-api";
@@ -72,6 +73,7 @@ interface ArticleView {
   caption?: string;
   credit?: string;
   body: ArticleBodyBlock[];
+  liveUpdates: LiveUpdateItem[];
   meta?: SeoMeta;
   prev: NeighbourCard | null;
   next: NeighbourCard | null;
@@ -176,6 +178,7 @@ const loadArticleView = cache(async function loadArticleView(slug: string): Prom
       caption: article.caption ?? undefined,
       credit: article.credit ?? undefined,
       body: article.body ?? [],
+      liveUpdates: article.liveUpdates ?? [],
       meta: article.meta,
       prev: data.prev ? { slug: data.prev.slug, title: data.prev.title } : null,
       next: data.next ? { slug: data.next.slug, title: data.next.title } : null,
@@ -508,6 +511,151 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
+/* ── Live Updates ────────────────────────────────────────────────────────── */
+
+function formatTimeAgo(
+  isoString?: string | null,
+  fallback?: string | null
+): string {
+  if (!isoString) return fallback ?? "";
+
+  const timestamp = Date.parse(isoString);
+  if (Number.isNaN(timestamp)) return fallback ?? "";
+
+  const now = Date.now();
+  const diffInSeconds = Math.max(0, Math.floor((now - timestamp) / 1000));
+
+  if (diffInSeconds < 45) {
+    return "just now";
+  }
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"} ago`;
+  }
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours} hour${diffInHours === 1 ? "" : "s"} ago`;
+  }
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) {
+    return "1 day ago";
+  }
+  if (diffInDays < 7) {
+    return `${diffInDays} days ago`;
+  }
+  const diffInWeeks = Math.floor(diffInDays / 7);
+  if (diffInWeeks < 5) {
+    return `${diffInWeeks} week${diffInWeeks === 1 ? "" : "s"} ago`;
+  }
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths < 12) {
+    return `${diffInMonths} month${diffInMonths === 1 ? "" : "s"} ago`;
+  }
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears} year${diffInYears === 1 ? "" : "s"} ago`;
+}
+
+function ArticleLiveUpdates({ items }: { items: LiveUpdateItem[] }) {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <section className="article-live-updates" aria-label="Live updates">
+      <div className="article-live-updates-inner">
+        <div className="article-live-header">
+          <div className="article-live-badge">
+            <span className="article-live-pulse" aria-hidden="true" />
+            <span className="article-live-badge-text">LIVE UPDATES</span>
+          </div>
+          <span className="article-live-count">
+            {items.length} {items.length === 1 ? "update" : "updates"}
+          </span>
+        </div>
+
+        <div className="article-live-feed">
+          {items.map((item) => {
+            const timeAgo = formatTimeAgo(item.publishedAtIso, item.publishedAt);
+
+            return (
+              <article
+                className="article-live-item"
+                key={item.id}
+                id={`live-update-${item.id}`}
+              >
+                <div className="article-live-item-header">
+                  <div className="article-live-item-meta">
+                    {timeAgo && (
+                      <time
+                        className="article-live-item-time"
+                        dateTime={item.publishedAtIso ?? undefined}
+                        suppressHydrationWarning
+                      >
+                        {timeAgo}
+                      </time>
+                    )}
+                    {item.author && (
+                      <span className="article-live-item-author">
+                        By {item.author}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {item.title && (
+                  <h3 className="article-live-item-title">{item.title}</h3>
+                )}
+
+                {item.subTitle && (
+                  <p className="article-live-item-subtitle">{item.subTitle}</p>
+                )}
+
+                {item.banner && item.banner.url && (
+                  <figure className="article-live-item-banner">
+                    <div className="article-live-item-media">
+                      <SafeImage
+                        src={item.banner.url}
+                        alt={item.banner.alt ?? item.title ?? "Live update image"}
+                        width={620}
+                        height={349}
+                        sizes="(max-width: 664px) calc(100vw - 48px), 620px"
+                        quality={70}
+                        className="article-live-banner-image"
+                      />
+                    </div>
+                    {(item.banner.caption || item.banner.credit) && (
+                      <figcaption className="article-live-banner-caption">
+                        {item.banner.caption && (
+                          <span>{item.banner.caption}</span>
+                        )}
+                        {item.banner.credit && (
+                          <span className="article-photo-credit">
+                            {" "}
+                            | {item.banner.credit}
+                          </span>
+                        )}
+                      </figcaption>
+                    )}
+                  </figure>
+                )}
+
+                {item.body && item.body.length > 0 && (
+                  <div className="article-live-item-body">
+                    {item.body.map((block, index) => (
+                      <ArticleBodyBlockView
+                        block={block}
+                        key={`${block.type}-${index}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ── Page ───────────────────────────────────────────────────────────────── */
 
 export default async function ArticlePage({ params }: PageProps) {
@@ -733,6 +881,11 @@ export default async function ArticlePage({ params }: PageProps) {
             </a>
           </div>
         </div>
+
+        {/* ── Live Updates ────────────────────────────────────────────── */}
+        {article.liveUpdates.length > 0 && (
+          <ArticleLiveUpdates items={article.liveUpdates} />
+        )}
 
         {/* ── Related Articles ──────────────────────────────────────── */}
         {article.related.length > 0 && (

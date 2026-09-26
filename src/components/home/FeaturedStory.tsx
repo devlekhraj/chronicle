@@ -20,7 +20,10 @@ export default function FeaturedStory({
     >
       <div className="grid grid-cols-1 md:grid-cols-[45%_1fr] gap-6 lg:gap-8 items-center">
         {/* Left: Article Image */}
-        <div className="relative w-full aspect-[4/3] overflow-hidden bg-alt-light">
+        <div
+          className="relative w-full aspect-[4/3] overflow-hidden bg-alt-light"
+          style={{ aspectRatio: "4 / 3" }}
+        >
           <Link
             href={`/${story.slug}`}
             className="group block relative w-full h-full focus:outline-none"
@@ -32,7 +35,7 @@ export default function FeaturedStory({
               alt={story.title}
               fill
               sizes="(max-width: 768px) 100vw, 40vw"
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+              className="object-cover scale-100 transition-transform duration-500 ease-out group-hover:scale-[1.02] will-change-transform"
             />
           </Link>
         </div>

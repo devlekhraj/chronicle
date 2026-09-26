@@ -37,7 +37,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 function OptimizedArticleImage({
   story,
   className,
@@ -46,6 +45,7 @@ function OptimizedArticleImage({
   priority = false,
   sizes,
   width,
+  style,
 }: {
   story: ArticleSummary;
   className: string;
@@ -54,11 +54,18 @@ function OptimizedArticleImage({
   priority?: boolean;
   sizes: string;
   width: number;
+  style?: React.CSSProperties;
 }) {
   const src = story.image;
 
   if (!src) {
-    return <div className={`placeholder ${className}`} aria-hidden="true" />;
+    return (
+      <div
+        className={`placeholder ${className}`}
+        style={style}
+        aria-hidden="true"
+      />
+    );
   }
 
   return (
@@ -72,6 +79,7 @@ function OptimizedArticleImage({
       priority={priority}
       quality={72}
       sizes={sizes}
+      style={style}
     />
   );
 }
@@ -90,13 +98,7 @@ function Meta({
   dateTime?: string;
   author?: string | { name: string; slug?: string };
 }) {
-  return (
-    <ArticleMeta
-      date={date}
-      dateTime={dateTime}
-      author={author}
-    />
-  );
+  return <ArticleMeta date={date} dateTime={dateTime} author={author} />;
 }
 
 function Tags({
@@ -135,21 +137,24 @@ function StoryCard({ story }: { story: ArticleSummary }) {
         <OptimizedArticleImage
           story={story}
           width={400}
-          height={250}
+          height={225}
           className="card-image"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 217px"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 260px"
+          style={{ width: "100%", height: "auto", aspectRatio: "16 / 9", objectFit: "cover" }}
         />
       </Link>
-      <Tags tags={story.categories} />
-      <h3>
-        <Link href={`/${story.slug}`}>{story.title}</Link>
-      </h3>
-      {story.excerpt && <p>{story.excerpt}</p>}
-      <Meta
-        date={story.publishedAt}
-        dateTime={story.publishedAtIso}
-        author={story.author}
-      />
+      <div className="card-copy">
+        <Tags tags={story.categories} />
+        <h3>
+          <Link href={`/${story.slug}`}>{story.title}</Link>
+        </h3>
+        {story.excerpt && <p>{story.excerpt}</p>}
+        <Meta
+          date={story.publishedAt}
+          dateTime={story.publishedAtIso}
+          author={story.author}
+        />
+      </div>
     </article>
   );
 }
@@ -246,11 +251,12 @@ export default async function Home() {
               <OptimizedArticleImage
                 story={heroStory}
                 width={800}
-                height={450}
+                height={333}
                 className="hero-image"
                 priority
                 loading="eager"
                 sizes="(max-width: 1024px) calc(100vw - 32px), (max-width: 1348px) calc(100vw - 496px), 876px"
+                style={{ width: "100%", height: "auto", aspectRatio: "16 / 9", objectFit: "cover" }}
               />
             </Link>
           </section>
@@ -260,37 +266,52 @@ export default async function Home() {
             {/* Left Column: Featured Story + Expeditions + Environment + Conservation */}
             <div className="main-content-flow">
               {/* Featured Story Stack */}
-              <div className="featured-story-stack">
-                {featuredStories.map((story) => (
-                  <article className="featured-story" key={story.slug}>
-                    <Link
-                      href={`/${story.slug}`}
-                      className="featured-image-link"
-                      aria-label={story.title}
-                    >
-                      <OptimizedArticleImage
-                        story={story}
-                        width={600}
-                        height={380}
-                        className="featured-image"
-                        sizes="(max-width: 1024px) calc(100vw - 32px), 320px"
-                      />
-                    </Link>
-                    <div className="feature-copy">
-                      <Tags tags={story.categories} />
-                      <h2>
-                        <Link href={`/${story.slug}`}>{story.title}</Link>
-                      </h2>
-                      {story.excerpt && <p>{story.excerpt}</p>}
-                      <Meta
-                        date={story.publishedAt}
-                        dateTime={story.publishedAtIso}
-                        author={story.author}
-                      />
-                    </div>
-                  </article>
-                ))}
-              </div>
+              {featuredStories && featuredStories.length > 0 ? (
+                <div className="featured-story-stack">
+                  {featuredStories.map((story) => (
+                    <article className="featured-story" key={story.slug}>
+                      <Link
+                        href={`/${story.slug}`}
+                        className="featured-image-link"
+                        aria-label={story.title}
+                      >
+                        <OptimizedArticleImage
+                          story={story}
+                          width={600}
+                          height={220}
+                          className="featured-image"
+                          sizes="(max-width: 1024px) calc(100vw - 32px), 400px"
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            aspectRatio: "16 / 9",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Link>
+                      <div className="feature-copy">
+                        <div className="feature-tags-bar">
+                          {story.badge ? (
+                            <span className="featured-badge">
+                              {story.badge}
+                            </span>
+                          ) : null}
+                          <Tags tags={story.categories} />
+                        </div>
+                        <h2>
+                          <Link href={`/${story.slug}`}>{story.title}</Link>
+                        </h2>
+                        {story.excerpt && <p>{story.excerpt}</p>}
+                        <Meta
+                          date={story.publishedAt}
+                          dateTime={story.publishedAtIso}
+                          author={story.author}
+                        />
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : null}
 
               {/* Expeditions Section */}
               <Section category={categorySections[0]} />

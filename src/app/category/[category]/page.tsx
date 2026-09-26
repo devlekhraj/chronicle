@@ -169,14 +169,18 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                   className="category-article-thumb-link"
                   aria-label={story.title}
                 >
-                  <div className="category-article-thumb placeholder">
+                  <div
+                    className="category-article-thumb placeholder"
+                    style={{ width: "100%", height: "auto", aspectRatio: "16 / 9", position: "relative", overflow: "hidden" }}
+                  >
                     {story.image ? (
                       <SafeImage
                         src={story.image}
                         alt={story.imageMeta?.alt ?? story.title}
                         width={380}
-                        height={240}
+                        height={220}
                         loading="lazy"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />
                     ) : (
                       <div className="category-thumb-fallback" />

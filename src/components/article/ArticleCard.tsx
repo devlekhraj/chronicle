@@ -27,7 +27,10 @@ export default function ArticleCard({
     <article className={`flex flex-col group ${className}`}>
       {/* Prominent Image Area */}
       {article.image && (
-        <div className="relative w-full aspect-[16/10] overflow-hidden bg-alt-light mb-3.5">
+        <div
+          className="relative w-full aspect-[16/10] overflow-hidden bg-alt-light mb-3.5"
+          style={{ aspectRatio: "16 / 10" }}
+        >
           <Link
             href={`/${article.slug}`}
             className="block relative w-full h-full focus:outline-none"
@@ -40,7 +43,7 @@ export default function ArticleCard({
               fill
               priority={imagePriority}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              className="object-cover scale-100 transition-transform duration-500 ease-out group-hover:scale-[1.03] will-change-transform"
             />
           </Link>
         </div>

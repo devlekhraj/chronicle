@@ -758,26 +758,28 @@ export default async function ArticlePage({ params }: PageProps) {
                         <div className="placeholder card-image" aria-hidden="true" />
                       )}
                     </Link>
-                    <div className="tags">
-                      {rel.categories.map((category, index) => (
-                        <Link
-                          href={`/category/${category.slug}`}
-                          key={`${category.slug}-${index}`}
-                        >
-                          {category.title}
-                        </Link>
-                      ))}
-                    </div>
-                    <h3>
-                      <Link href={`/${rel.slug}`}>{rel.title}</Link>
-                    </h3>
-                    {rel.blurb && <p>{rel.blurb}</p>}
-                    <div className="meta">
-                      <span className="meta-author">
-                        By {rel.authorName ?? "Everest Chronicle Desk"}
-                      </span>
-                      <span className="meta-sep" aria-hidden="true">|</span>
-                      <time dateTime={rel.publishedAtIso}>{rel.publishedAt}</time>
+                    <div className="card-copy">
+                      <div className="tags">
+                        {rel.categories.map((category, index) => (
+                          <Link
+                            href={`/category/${category.slug}`}
+                            key={`${category.slug}-${index}`}
+                          >
+                            {category.title}
+                          </Link>
+                        ))}
+                      </div>
+                      <h3>
+                        <Link href={`/${rel.slug}`}>{rel.title}</Link>
+                      </h3>
+                      {rel.blurb && <p>{rel.blurb}</p>}
+                      <div className="meta">
+                        <span className="meta-author">
+                          By {rel.authorName ?? "Everest Chronicle Desk"}
+                        </span>
+                        <span className="meta-sep" aria-hidden="true">|</span>
+                        <time dateTime={rel.publishedAtIso}>{rel.publishedAt}</time>
+                      </div>
                     </div>
                   </article>
                 ))}

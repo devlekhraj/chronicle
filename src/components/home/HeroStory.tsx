@@ -60,7 +60,10 @@ export default function HeroStory({ story }: HeroStoryProps) {
           </div>
 
           {/* Right Column: Large Image (approx. 68%) */}
-          <div className="relative w-full overflow-hidden aspect-[16/10] bg-alt-light">
+          <div
+            className="relative w-full overflow-hidden aspect-[16/10] bg-alt-light"
+            style={{ aspectRatio: "16 / 10" }}
+          >
             <Link
               href={`/${story.slug}`}
               className="group block relative w-full h-full focus:outline-none"
@@ -73,7 +76,7 @@ export default function HeroStory({ story }: HeroStoryProps) {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 68vw"
-                className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+                className="object-cover scale-100 transition-transform duration-500 ease-out group-hover:scale-[1.02] will-change-transform"
               />
             </Link>
           </div>

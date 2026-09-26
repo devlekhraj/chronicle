@@ -11,6 +11,7 @@ interface SafeImageProps {
   priority?: boolean;
   loading?: "eager" | "lazy";
   quality?: number;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -32,6 +33,7 @@ export default function SafeImage({
   priority = false,
   loading = "lazy",
   quality,
+  style,
 }: SafeImageProps) {
   if (!src) {
     return null;
@@ -48,6 +50,7 @@ export default function SafeImage({
         className={className}
         loading={priority ? "eager" : loading}
         decoding="async"
+        style={style}
       />
     );
   }
@@ -63,6 +66,7 @@ export default function SafeImage({
       priority={priority}
       loading={priority ? undefined : loading}
       quality={quality}
+      style={style}
     />
   );
 }

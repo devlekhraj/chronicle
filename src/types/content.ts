@@ -67,6 +67,7 @@ export interface ArticleSummary {
   readTime?: string;
   author?: string | AuthorMeta;
   authors?: AuthorMeta[];
+  badge?: string;
   meta?: SeoMeta;
 }
 

@@ -68,6 +68,9 @@ export interface ArticleSummary {
   author?: string | AuthorMeta;
   authors?: AuthorMeta[];
   badge?: string;
+  hasLiveUpdateToday?: boolean;
+  latestLiveUpdateAgo?: string | null;
+  latestLiveUpdateIso?: string | null;
   meta?: SeoMeta;
 }
 

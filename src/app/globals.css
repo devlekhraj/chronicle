@@ -1466,7 +1466,7 @@ body.modal-backdrop-open > main {
   display: grid;
   grid-template-columns: 404px 1fr;
   gap: 20px;
-  align-items: start;
+  align-items: center;
 }
 
 .hero-copy {
@@ -1575,6 +1575,77 @@ body.modal-backdrop-open > main {
   height: 6px;
   border-radius: 50%;
   background-color: #f59e0b;
+}
+
+/* Live Update Tag for story listings & cards */
+.live-update-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: #ffffff;
+  font: 700 11px/1 var(--font-condensed), sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  width: fit-content;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.live-update-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  background: #ffffff;
+  animation: livePulse 1.8s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.live-update-tag-sep {
+  opacity: 0.75;
+  font-weight: 500;
+}
+
+.live-update-tag-time {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.95;
+}
+
+.live-update-tag--compact {
+  font-size: 10px;
+  padding: 3px 6px;
+  gap: 4px;
+}
+
+.live-update-tag--compact .live-update-tag-dot {
+  width: 5px;
+  height: 5px;
+}
+
+.hero-live-tag-wrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: -4px;
+}
+
+.card-tags-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.latest-headline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .meta {
@@ -3372,6 +3443,263 @@ body.modal-backdrop-open > main {
   color: var(--text-muted, #6b7280);
 }
 
+/* ==========================================================================
+   Live Coverage Horizontal Timeline (Guardian-style adapted to Design System)
+   ========================================================================== */
+.guardian-live-timeline {
+  width: 100%;
+  margin-top: 24px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border-light, rgb(20 20 20 / 12%));
+}
+
+/* 1. Top Banner Bar */
+.guardian-live-topbar {
+  background: #dc2626;
+  color: #ffffff;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.guardian-live-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guardian-live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  background: #ffffff;
+  animation: livePulse 1.8s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.guardian-live-topbar-badge {
+  font:
+    800 12px/1 var(--font-condensed),
+    sans-serif;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.guardian-live-topbar-status {
+  font:
+    500 12px/1 var(--font-sans),
+    sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.guardian-live-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  max-width: 340px;
+}
+
+.guardian-live-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  background: rgba(255, 255, 255, 0.85);
+  flex-shrink: 0;
+}
+
+.guardian-live-latest-link {
+  font:
+    500 13px/1.3 var(--font-serif),
+    Georgia,
+    serif;
+  color: #ffffff;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.guardian-live-latest-link:hover {
+  color: #ffffff;
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+/* 2. Timeline Strip */
+.guardian-live-strip {
+  background: var(--alt-light, #f4f6f6);
+  padding: 16px 14px 10px;
+  position: relative;
+}
+
+.guardian-live-track {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+
+.guardian-live-track::-webkit-scrollbar {
+  display: none;
+}
+
+.guardian-live-rail {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed var(--border, rgb(20 20 20 / 25%));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.guardian-live-node {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  width: 140px;
+  text-decoration: none;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.guardian-live-node-marker-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 12px;
+  margin-bottom: 6px;
+}
+
+.guardian-live-node-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  background: #dc2626;
+  border: 2px solid #ffffff;
+  flex-shrink: 0;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.guardian-live-node:hover .guardian-live-node-dot {
+  transform: scale(1.3);
+  background: #b91c1c;
+}
+
+.guardian-live-node-time {
+  font:
+    700 11px/1 var(--font-condensed),
+    sans-serif;
+  letter-spacing: 0.04em;
+  color: var(--dark-100, #141414);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.guardian-live-node-headline {
+  font:
+    500 12px/1.35 var(--font-serif),
+    Georgia,
+    serif;
+  color: var(--dark-100, #141414);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.guardian-live-node:hover .guardian-live-node-headline {
+  color: #dc2626;
+  text-decoration: underline;
+}
+
+/* 3. Navigation Chevron Controls */
+.guardian-live-nav-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-light, rgb(20 20 20 / 8%));
+}
+
+.guardian-live-nav-btn {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  background: var(--dark-100, #141414) !important;
+  color: #ffffff !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.guardian-live-nav-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+
+.guardian-live-nav-btn:hover:not(:disabled) {
+  background: #dc2626 !important;
+}
+
+.guardian-live-nav-btn:disabled {
+  opacity: 0.25 !important;
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 640px) {
+  .guardian-live-topbar-right {
+    display: none;
+  }
+
+  .guardian-live-node {
+    width: 125px;
+  }
+}
+
 .article-live-feed {
   display: flex;
   flex-direction: column;
@@ -3384,6 +3712,7 @@ body.modal-backdrop-open > main {
   background: rgb(42 131 106 / 5%);
   padding: 20px 24px 24px;
   border-radius: 0 0 var(--radius) var(--radius);
+  scroll-margin-top: 80px;
 }
 
 .article-live-item-header {
@@ -4159,7 +4488,7 @@ button.pagination-arrow {
   .hero {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
-    align-items: start;
+    align-items: center;
   }
 
   .hero-image {
@@ -4457,6 +4786,10 @@ button.pagination-arrow {
     display: contents;
   }
 
+  .hero-live-tag-wrap {
+    order: 0;
+  }
+
   .hero-copy .tags {
     order: 1;
   }
@@ -4530,6 +4863,7 @@ button.pagination-arrow {
     display: contents;
   }
 
+  .card .card-tags-bar,
   .card .tags {
     order: 1;
   }

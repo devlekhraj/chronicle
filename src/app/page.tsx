@@ -126,6 +126,33 @@ function Tags({
   );
 }
 
+function LiveUpdateTag({
+  story,
+  compact = false,
+}: {
+  story: ArticleSummary;
+  compact?: boolean;
+}) {
+  if (!story.hasLiveUpdateToday) {
+    return null;
+  }
+
+  return (
+    <span className={`live-update-tag${compact ? " live-update-tag--compact" : ""}`}>
+      <span className="live-update-tag-dot" aria-hidden="true" />
+      <span>LIVE UPDATE</span>
+      {story.latestLiveUpdateAgo ? (
+        <>
+          <span className="live-update-tag-sep" aria-hidden="true">-</span>
+          <time className="live-update-tag-time" dateTime={story.latestLiveUpdateIso ?? undefined}>
+            {story.latestLiveUpdateAgo}
+          </time>
+        </>
+      ) : null}
+    </span>
+  );
+}
+
 function StoryCard({ story }: { story: ArticleSummary }) {
   return (
     <article className="card">
@@ -144,7 +171,10 @@ function StoryCard({ story }: { story: ArticleSummary }) {
         />
       </Link>
       <div className="card-copy">
-        <Tags tags={story.categories} />
+        <div className="card-tags-bar">
+          <LiveUpdateTag story={story} />
+          <Tags tags={story.categories} />
+        </div>
         <h3>
           <Link href={`/${story.slug}`}>{story.title}</Link>
         </h3>
@@ -232,6 +262,11 @@ export default async function Home() {
           {/* Hero Section */}
           <section className="hero" aria-labelledby="hero-story-heading">
             <div className="hero-copy">
+              {heroStory.hasLiveUpdateToday && (
+                <div className="hero-live-tag-wrap">
+                  <LiveUpdateTag story={heroStory} />
+                </div>
+              )}
               <h2 id="hero-story-heading">
                 <Link href={`/${heroStory.slug}`}>{heroStory.title}</Link>
               </h2>
@@ -291,6 +326,7 @@ export default async function Home() {
                       </Link>
                       <div className="feature-copy">
                         <div className="feature-tags-bar">
+                          <LiveUpdateTag story={story} />
                           {story.badge ? (
                             <span className="featured-badge">
                               {story.badge}
@@ -330,9 +366,12 @@ export default async function Home() {
               <h2 className="latest-heading">Latest</h2>
               <div className="latest-headlines">
                 {latestStories.map((story, i) => (
-                  <Link href={`/${story.slug}`} key={story.slug + i}>
-                    {story.title}
-                  </Link>
+                  <div key={story.slug + i} className="latest-headline-item">
+                    <LiveUpdateTag story={story} compact />
+                    <Link href={`/${story.slug}`}>
+                      {story.title}
+                    </Link>
+                  </div>
                 ))}
               </div>
             </aside>

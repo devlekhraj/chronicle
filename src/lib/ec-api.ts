@@ -86,6 +86,9 @@ export interface ArticleDetailPayload {
   body: ArticleBodyBlock[];
   liveUpdates?: LiveUpdateItem[];
   meta?: SeoMeta;
+  hasLiveUpdateToday?: boolean;
+  latestLiveUpdateAgo?: string | null;
+  latestLiveUpdateIso?: string | null;
 }
 
 export interface ArticleDetailData {

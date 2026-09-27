@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import JsonLd from "@/components/seo/JsonLd";
 import SafeImage from "@/components/ui/SafeImage";
-import ArticleLiveTimeline from "@/components/article/ArticleLiveTimeline";
 import {
   type ArticleCategory,
   ArticleImageRef,
@@ -76,6 +75,9 @@ interface ArticleView {
   body: ArticleBodyBlock[];
   liveUpdates: LiveUpdateItem[];
   meta?: SeoMeta;
+  hasLiveUpdateToday?: boolean;
+  latestLiveUpdateAgo?: string | null;
+  latestLiveUpdateIso?: string | null;
   prev: NeighbourCard | null;
   next: NeighbourCard | null;
   related: RelatedCard[];
@@ -140,22 +142,6 @@ function isMaterialRevision(
  * ("Sep 20, 2026"). Pinned to the newsroom timezone so the server-rendered
  * output does not depend on the host locale (docs §34).
  */
-const REVISION_DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "Asia/Kathmandu",
-});
-
-function formatRevisionDate(iso?: string): string | undefined {
-  if (!iso) return undefined;
-
-  const parsed = new Date(iso);
-
-  return Number.isNaN(parsed.getTime())
-    ? undefined
-    : REVISION_DATE_FORMAT.format(parsed);
-}
 
 const loadArticleView = cache(async function loadArticleView(slug: string): Promise<ArticleView | null> {
   try {
@@ -181,6 +167,19 @@ const loadArticleView = cache(async function loadArticleView(slug: string): Prom
       body: article.body ?? [],
       liveUpdates: article.liveUpdates ?? [],
       meta: article.meta,
+      hasLiveUpdateToday:
+        article.hasLiveUpdateToday ??
+        (article.liveUpdates ? article.liveUpdates.length > 0 : false),
+      latestLiveUpdateAgo:
+        article.latestLiveUpdateAgo ??
+        (article.liveUpdates && article.liveUpdates[0]?.publishedAt
+          ? article.liveUpdates[0].publishedAt
+          : null),
+      latestLiveUpdateIso:
+        article.latestLiveUpdateIso ??
+        (article.liveUpdates && article.liveUpdates[0]?.publishedAtIso
+          ? article.liveUpdates[0].publishedAtIso
+          : null),
       prev: data.prev ? { slug: data.prev.slug, title: data.prev.title } : null,
       next: data.next ? { slug: data.next.slug, title: data.next.title } : null,
       related: (data.related ?? []).map(summaryToCard),
@@ -702,8 +701,6 @@ export default async function ArticlePage({ params }: PageProps) {
     ? article.updatedAtIso
     : undefined;
 
-  const updatedAtDisplay = formatRevisionDate(dateModified);
-
   const articleJsonLd = jsonLdGraph([
     newsArticleJsonLd({
       path: `/${article.slug}`,
@@ -734,6 +731,26 @@ export default async function ArticlePage({ params }: PageProps) {
 
         <article className="article-detail-shell">
           <header className="article-detail-header">
+            {(article.hasLiveUpdateToday || article.liveUpdates.length > 0) && (
+              <div className="article-header-live-wrap">
+                <span className="live-update-tag">
+                  <span className="live-update-tag-dot" aria-hidden="true" />
+                  <span>LIVE UPDATE</span>
+                  {(article.latestLiveUpdateAgo || article.liveUpdates[0]?.publishedAt) && (
+                    <>
+                      <span className="live-update-tag-sep" aria-hidden="true">-</span>
+                      <time
+                        className="live-update-tag-time"
+                        dateTime={article.latestLiveUpdateIso ?? article.liveUpdates[0]?.publishedAtIso ?? undefined}
+                      >
+                        {article.latestLiveUpdateAgo || article.liveUpdates[0]?.publishedAt}
+                      </time>
+                    </>
+                  )}
+                </span>
+              </div>
+            )}
+
             <div className="article-detail-tags" aria-label="Article categories">
               {article.categories.map((category) => (
                 <Link href={`/category/${category.slug}`} key={category.slug}>
@@ -780,30 +797,7 @@ export default async function ArticlePage({ params }: PageProps) {
                   </time>
                 </>
               )}
-              {/*
-                Shown only when the revision is material — the same condition
-                that emits `dateModified` — so the visible and structured dates
-                never disagree (docs §34).
-              */}
-              {dateModified && updatedAtDisplay && (
-                <>
-                  <span className="article-meta-sep" aria-hidden="true">|</span>
-                  <time dateTime={dateModified} className="article-meta-updated">
-                    Updated {updatedAtDisplay}
-                  </time>
-                </>
-              )}
-              {article.readTime && (
-                <>
-                  <span className="article-meta-sep" aria-hidden="true">|</span>
-                  <span className="article-meta-readtime">{article.readTime}</span>
-                </>
-              )}
             </div>
-
-            {article.liveUpdates.length > 0 && (
-              <ArticleLiveTimeline items={article.liveUpdates} />
-            )}
           </header>
 
           <figure className="article-hero-figure">
@@ -917,16 +911,6 @@ export default async function ArticlePage({ params }: PageProps) {
                       )}
                     </Link>
                     <div className="card-copy">
-                      <div className="tags">
-                        {rel.categories.map((category, index) => (
-                          <Link
-                            href={`/category/${category.slug}`}
-                            key={`${category.slug}-${index}`}
-                          >
-                            {category.title}
-                          </Link>
-                        ))}
-                      </div>
                       <h3>
                         <Link href={`/${rel.slug}`}>{rel.title}</Link>
                       </h3>

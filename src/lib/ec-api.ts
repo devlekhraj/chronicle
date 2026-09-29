@@ -81,6 +81,8 @@ export interface ArticleDetailPayload {
   wordCount?: number;
   author?: string | null;
   authors?: AuthorMeta[];
+  reportFrom?: string | null;
+  isExclusive?: boolean | null;
   image?: string | null;
   imageMeta?: ImageMeta | null;
   caption?: string | null;

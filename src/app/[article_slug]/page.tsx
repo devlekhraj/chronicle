@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cache, ViewTransition } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import JsonLd from "@/components/seo/JsonLd";
 import SafeImage from "@/components/ui/SafeImage";
 import {
@@ -66,6 +67,8 @@ interface ArticleView {
   updatedAtIso?: string;
   readTime?: string;
   authors: AuthorMeta[];
+  reportFrom?: string;
+  isExclusive?: boolean;
   image?: string;
   imageAlt?: string;
   imageWidth?: number;
@@ -158,6 +161,8 @@ const loadArticleView = cache(async function loadArticleView(slug: string): Prom
       updatedAtIso: article.updatedAt ?? undefined,
       readTime: article.readTime ?? undefined,
       authors: article.authors ?? [],
+      reportFrom: article.reportFrom ?? undefined,
+      isExclusive: Boolean(article.isExclusive),
       image: article.image ?? undefined,
       imageAlt: article.imageMeta?.alt ?? undefined,
       imageWidth: article.imageMeta?.width ?? undefined,
@@ -203,6 +208,38 @@ function formatAuthors(authors?: AuthorMeta[]): string {
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
+function formatLocationText(value?: string | null): string {
+  const lowerWords = new Set([
+    "a",
+    "an",
+    "and",
+    "as",
+    "at",
+    "but",
+    "by",
+    "for",
+    "from",
+    "in",
+    "nor",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "via",
+  ]);
+
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\S+/g, (word, offset) => {
+      if (offset > 0 && lowerWords.has(word)) {
+        return word;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    });
 }
 
 function MediaLink({
@@ -751,6 +788,10 @@ export default async function ArticlePage({ params }: PageProps) {
               </div>
             )}
 
+            {article.isExclusive && (
+              <div className="article-exclusive-badge">Exclusive News</div>
+            )}
+
             <div className="article-detail-tags" aria-label="Article categories">
               {article.categories.map((category) => (
                 <Link href={`/category/${category.slug}`} key={category.slug}>
@@ -789,6 +830,15 @@ export default async function ArticlePage({ params }: PageProps) {
                   <span>Everest Chronicle Desk</span>
                 )}
               </span>
+              {article.reportFrom && (
+                <>
+                  <span className="article-meta-sep" aria-hidden="true">|</span>
+                  <span className="article-meta-location">
+                    <MapPin size={13} strokeWidth={2.1} aria-hidden="true" />
+                    {formatLocationText(article.reportFrom)}
+                  </span>
+                </>
+              )}
               {article.publishedAt && (
                 <>
                   <span className="article-meta-sep" aria-hidden="true">|</span>

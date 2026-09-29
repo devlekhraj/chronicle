@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import http from "node:http";
 import https from "node:https";
+import { resolveEcApiBaseUrl } from "@/lib/api-base-url";
 
 /**
  * Article existence check, run before the response is rendered.
@@ -17,8 +18,7 @@ import https from "node:https";
  * effect inside Proxy, so results are memoised in-process instead.
  */
 
-const API_BASE_URL =
-  process.env.EC_API_BASE_URL || "https://admin-chronicle.test";
+const API_BASE_URL = resolveEcApiBaseUrl();
 
 const API_TIMEOUT_MS = 4000;
 

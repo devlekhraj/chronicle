@@ -1,5 +1,6 @@
 import http from "node:http";
 import https from "node:https";
+import { resolveEcApiBaseUrl } from "@/lib/api-base-url";
 import { cacheLife, cacheTag } from "next/cache";
 import type {
   ArticleBodyBlock,
@@ -145,7 +146,7 @@ export function isNotFoundError(error: unknown): boolean {
   );
 }
 
-const API_BASE_URL = process.env.EC_API_BASE_URL || "https://admin-chronicle.test";
+const API_BASE_URL = resolveEcApiBaseUrl();
 const IS_EC_API_CONFIGURED = true;
 const API_TIMEOUT_MS = (() => {
   const milliseconds = Number.parseInt(process.env.EC_API_TIMEOUT_MS ?? "8000", 10);

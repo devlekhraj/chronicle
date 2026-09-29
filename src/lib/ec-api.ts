@@ -1,6 +1,7 @@
 import http from "node:http";
 import https from "node:https";
 import { resolveEcApiBaseUrl } from "@/lib/api-base-url";
+import { resolveImageSrc } from "@/lib/image-hosts";
 import { cacheLife, cacheTag } from "next/cache";
 import type {
   ArticleBodyBlock,
@@ -154,6 +155,24 @@ const API_TIMEOUT_MS = (() => {
   return Number.isFinite(milliseconds) && milliseconds > 0 ? milliseconds : 8000;
 })();
 
+function normalizeCmsUploads<T>(value: T): T {
+  if (typeof value === "string") {
+    return resolveImageSrc(value) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeCmsUploads(item)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, normalizeCmsUploads(item)]),
+    ) as T;
+  }
+
+  return value;
+}
+
 function requestJson<T>(path: string): Promise<T> {
   const url = new URL(path, API_BASE_URL);
 
@@ -186,7 +205,7 @@ function requestJson<T>(path: string): Promise<T> {
           }
 
           try {
-            resolve(JSON.parse(body) as T);
+            resolve(normalizeCmsUploads(JSON.parse(body) as T));
           } catch (error) {
             reject(error);
           }

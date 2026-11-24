@@ -3145,6 +3145,173 @@ body.modal-backdrop-open > main {
   margin: 12px 0;
 }
 
+/* ── Embed block ── */
+.article-embed-figure {
+  margin: 24px 0;
+  width: 100%;
+}
+
+.article-embed-figure.article-wide-media {
+  margin: 24px 0;
+  position: relative;
+  left: 50%;
+  width: min(92vw, 960px);
+  transform: translateX(-50%);
+}
+
+.article-embed-figure.article-full-wide-media {
+  margin: 24px 0;
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+}
+
+.article-embed-figure figcaption,
+.article-embed-caption {
+  font: italic 13px/1.5 var(--font-body, sans-serif);
+  color: #64748b;
+  margin-top: 8px;
+  text-align: left;
+}
+
+/* Raw HTML / iframe snippets (Google Maps, Spotify widget HTML, etc.) */
+.article-embed-html {
+  width: 100%;
+}
+.article-embed-html iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 0;
+  border-radius: 4px;
+  display: block;
+}
+
+/* Generic iframe with no provider-specific handling */
+.article-embed-generic-frame {
+  width: 100%;
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+.article-embed-generic-frame .article-embed-iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/* Fixed-height provider wrappers (Instagram / TikTok) */
+.article-embed-instagram-wrapper {
+  width: 100%;
+  position: relative;
+}
+.article-embed-instagram-wrapper .article-embed-iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.article-embed-tiktok {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+/* Base iframe rule: width follows parent container (normal/medium/full), height is not controlled */
+.article-embed-iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+}
+
+/* Instagram */
+.article-embed-instagram {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 600px;
+  border: 0 !important;
+  background: transparent;
+}
+
+/* Twitter / X */
+.article-embed-twitter {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 780px;
+  border: 0 !important;
+  background: transparent;
+}
+
+.article-embed-twitter iframe,
+.twitter-tweet {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Facebook Post */
+.article-embed-facebook-post {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 580px;
+  border: 0 !important;
+  background: transparent;
+}
+
+/* Facebook Profile / Page */
+.article-embed-facebook-profile {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 500px;
+  border: 0 !important;
+  background: transparent;
+}
+
+/* YouTube / Vimeo responsive wrapper */
+.article-embed-youtube-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+.article-embed-youtube-wrapper .article-embed-iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+
+/* Spotify */
+.article-embed-spotify {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* Generic link card */
+.article-embed-link-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  color: var(--brand);
+  font-size: 13px;
+  text-decoration: none;
+  word-break: break-all;
+  background: #fff;
+}
+.article-embed-link-card:hover {
+  text-decoration: underline;
+}
+
 .article-quotation {
   border-left: 4px solid var(--brand);
   color: #3f454a;
@@ -3169,6 +3336,24 @@ body.modal-backdrop-open > main {
   margin-top: 10px;
 }
 
+.article-quotation-source {
+  color: #6b7280;
+  display: block;
+  font:
+    italic 13px/1.4 var(--font-condensed),
+    sans-serif;
+  margin-top: 4px;
+}
+
+.article-quotation-source-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.article-quotation-source-link:hover {
+  color: var(--brand);
+}
+
 .article-list {
   margin: 0;
   padding-left: 22px;
@@ -3176,6 +3361,89 @@ body.modal-backdrop-open > main {
 
 .article-list li {
   margin-bottom: 8px;
+}
+
+.article-factbox {
+  background: #f8fafc;
+  border-radius: 4px;
+  margin: 24px 0;
+  padding: 16px 20px;
+  overflow: visible;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.article-factbox.has-border,
+.article-factbox:not(.no-border) {
+  border: 1px solid #e2e8f0;
+}
+
+.article-factbox.no-border {
+  border: none;
+}
+
+.article-factbox-title {
+  color: #1e293b;
+  font: 700 16px/1.4 var(--font-condensed), sans-serif;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.article-factbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+
+.article-factbox-row {
+  display: flex;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.5;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 6px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.article-factbox-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.article-factbox-label {
+  color: #475569;
+  font-weight: 600;
+  width: 140px;
+  min-width: 110px;
+  flex-shrink: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.article-factbox-value {
+  color: #1e293b;
+  margin: 0;
+  flex-grow: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.article-factbox-caption {
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 12px;
+  padding-top: 8px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .article-table-figure {

@@ -107,13 +107,22 @@ export interface ArticleImageRef {
   alt?: string;
 }
 
+export type ArticleBlockSize = "normal" | "medium" | "full";
+
 export type ArticleBodyBlock =
-  | { type: "heading"; level?: ArticleHeadingLevel; text: string }
+  | { type: "heading"; level?: ArticleHeadingLevel; text: string; size?: ArticleBlockSize }
   | { type: "paragraph"; text: string }
-  | { type: "richText"; html: string }
-  | { type: "divider" }
-  | { type: "quotation"; text: string; citation?: string }
-  | { type: "list"; items: string[]; ordered?: boolean }
+  | { type: "divider"; size?: ArticleBlockSize }
+  | {
+      type: "quotation";
+      text: string;
+      citation?: string;
+      attribution?: string;
+      source?: string;
+      sourceUrl?: string;
+      size?: ArticleBlockSize;
+    }
+  | { type: "list"; items: string[]; ordered?: boolean; size?: ArticleBlockSize }
   | {
       type: "imageGrid";
       images: ArticleImageRef[];
@@ -121,6 +130,7 @@ export type ArticleBodyBlock =
       caption?: string;
       credit?: string;
       link?: string;
+      size?: ArticleBlockSize;
     }
   | {
       type: "wideImage";
@@ -128,6 +138,7 @@ export type ArticleBodyBlock =
       caption?: string;
       credit?: string;
       link?: string;
+      size?: ArticleBlockSize;
     }
   | {
       type: "fullWideImage";
@@ -135,6 +146,30 @@ export type ArticleBodyBlock =
       caption?: string;
       credit?: string;
       link?: string;
+      size?: ArticleBlockSize;
+    }
+  | {
+      type: "video";
+      url: string;
+      caption?: string;
+      size?: ArticleBlockSize;
+    }
+  | {
+      type: "callout";
+      style?: string;
+      title?: string;
+      text?: string;
+      message?: string;
+      size?: ArticleBlockSize;
+    }
+  | {
+      type: "code";
+      code: string;
+      language?: string;
+      title?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      size?: ArticleBlockSize;
     }
   | {
       type: "table";
@@ -143,6 +178,58 @@ export type ArticleBodyBlock =
       caption?: string;
       hasHeader?: boolean;
       striped?: boolean;
+      size?: ArticleBlockSize;
+    }
+  | {
+      /** Interactive / Social Embed block (Google Maps, Instagram, Facebook, X/Twitter, YouTube, Spotify, TikTok, etc.) */
+      type: "embed";
+      /** Raw URL or iframe/HTML snippet saved by the editor */
+      source?: string;
+      /** Alias fields saved by the editor block */
+      url?: string;
+      code?: string;
+      caption?: string;
+      captionPosition?: string;
+      size?: ArticleBlockSize;
+      layout?: string;
+      /** Parser output from the API (kind/url/html are safe to render directly). */
+      embedType?:
+        | "empty"
+        | "html"
+        | "iframe"
+        | "instagram-post"
+        | "instagram-profile"
+        | "twitter-post"
+        | "youtube"
+        | "vimeo"
+        | "spotify"
+        | "soundcloud"
+        | "tiktok-post"
+        | "facebook-post"
+        | "facebook-profile"
+        | "generic-url"
+        | "unsupported";
+      embedUrl?: string;
+      embedHtml?: string;
+      embedRawUrl?: string;
+      embedHeight?: number;
+      embedAspectRatio?: string;
+      embedProvider?: string;
+    }
+  | {
+      type: "related";
+      heading?: string;
+      articleIds?: number[];
+      size?: ArticleBlockSize;
+    }
+  | {
+      type: "ad";
+      imageUrl?: string;
+      title?: string;
+      description?: string;
+      linkUrl?: string;
+      buttonText?: string;
+      size?: ArticleBlockSize;
     };
 
 export interface LiveUpdateBanner {

@@ -9,6 +9,7 @@ import {
   type ArticleCategory,
   ArticleImageRef,
   type ArticleBodyBlock,
+  type ArticleBlockSize,
   type ArticleSummary,
   type AuthorMeta,
   type LiveUpdateItem,
@@ -311,54 +312,79 @@ function BlockImage({
   );
 }
 
+function getBlockWidthClass(size?: ArticleBlockSize | string): string {
+  if (size === "medium") return "article-wide-media";
+  if (size === "full") return "article-full-wide-media";
+  return "";
+}
+
 function ArticleBodyBlockView({ block }: { block: ArticleBodyBlock }) {
   switch (block.type) {
     case "heading": {
       const level = block.level ?? "h2";
+      const widthClass = getBlockWidthClass(block.size);
 
       if (level === "p") {
-        return <p className="article-paragraph">{block.text}</p>;
+        return <p className={`article-paragraph ${widthClass}`.trim()}>{block.text}</p>;
       }
 
       const Tag = level;
-      return <Tag>{block.text}</Tag>;
+      return <Tag className={widthClass || undefined}>{block.text}</Tag>;
     }
 
     case "paragraph":
       return <p className="article-paragraph">{block.text}</p>;
 
-    case "richText":
-      return (
-        <div
-          className="article-rich-text"
-          dangerouslySetInnerHTML={{ __html: block.html }}
-        />
-      );
+    case "divider": {
+      const widthClass = getBlockWidthClass(block.size);
+      return <hr className={`article-divider ${widthClass}`.trim()} />;
+    }
 
-    case "divider":
-      return <hr className="article-divider" />;
-
-    case "quotation":
+    case "quotation": {
+      const attribution = block.attribution || block.citation;
+      const widthClass = getBlockWidthClass(block.size);
       return (
-        <blockquote className="article-quotation">
+        <blockquote className={`article-quotation ${widthClass}`.trim()}>
           <p>{block.text}</p>
-          {block.citation && <cite>— {block.citation}</cite>}
+          {attribution && (
+            <cite className="article-quotation-attribution">
+              — {attribution}
+            </cite>
+          )}
+          {block.source && (
+            <div className="article-quotation-source">
+              {block.sourceUrl ? (
+                <a
+                  href={block.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="article-quotation-source-link"
+                >
+                  {block.source}
+                </a>
+              ) : (
+                block.source
+              )}
+            </div>
+          )}
         </blockquote>
       );
+    }
 
     case "list": {
       const items = block.items ?? [];
 
       if (items.length === 0) return null;
+      const widthClass = getBlockWidthClass(block.size);
 
       return block.ordered ? (
-        <ol className="article-list">
+        <ol className={`article-list ${widthClass}`.trim()}>
           {items.map((item, index) => (
             <li key={`${item}-${index}`}>{item}</li>
           ))}
         </ol>
       ) : (
-        <ul className="article-list">
+        <ul className={`article-list ${widthClass}`.trim()}>
           {items.map((item, index) => (
             <li key={`${item}-${index}`}>{item}</li>
           ))}
@@ -376,9 +402,10 @@ function ArticleBodyBlockView({ block }: { block: ArticleBodyBlock }) {
       if (images.length === 0 && !block.caption && !block.credit) {
         return null;
       }
+      const widthClass = getBlockWidthClass(block.size);
 
       return (
-        <figure className="article-inline-media">
+        <figure className={`article-inline-media ${widthClass}`.trim()}>
           {fullRow.length > 0 && (
             <div
               className="article-inline-media-grid"
@@ -419,11 +446,14 @@ function ArticleBodyBlockView({ block }: { block: ArticleBodyBlock }) {
 
     case "wideImage":
     case "fullWideImage": {
-      const isFullWide = block.type === "fullWideImage";
-      const className = isFullWide ? "article-full-wide-media" : "article-wide-media";
+      const isFullWide = block.type === "fullWideImage" || block.size === "full";
+      const isMedium = block.size === "medium" || (block.type === "wideImage" && block.size !== "normal");
+      const className = isFullWide ? "article-full-wide-media" : isMedium ? "article-wide-media" : "article-inline-media";
       const placeholderClassName = isFullWide
         ? "article-full-wide-media-placeholder"
-        : "article-wide-media-placeholder";
+        : isMedium
+        ? "article-wide-media-placeholder"
+        : "article-inline-media-placeholder";
 
       return (
         <figure className={className}>
@@ -441,6 +471,64 @@ function ArticleBodyBlockView({ block }: { block: ArticleBodyBlock }) {
       );
     }
 
+    case "video": {
+      const url = block.url;
+      if (!url) return null;
+      const widthClass = getBlockWidthClass(block.size);
+      let embedUrl = url;
+      const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      if (ytMatch) {
+        embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+      }
+      return (
+        <figure className={`article-wide-media ${widthClass}`.trim()}>
+          <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden", borderRadius: "inherit" }}>
+            <iframe
+              src={embedUrl}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: 0 }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          {block.caption && <figcaption className="mt-2 text-sm text-gray-500">{block.caption}</figcaption>}
+        </figure>
+      );
+    }
+
+    case "callout": {
+      const widthClass = getBlockWidthClass(block.size);
+      const text = block.text || block.message || "";
+      if (!text && !block.title) return null;
+      const style = block.style || "info";
+      return (
+        <aside className={`article-callout article-callout-${style} ${widthClass}`.trim()}>
+          {block.title && <h4 className="article-callout-title font-bold mb-1">{block.title}</h4>}
+          <div className="article-callout-text">{text}</div>
+        </aside>
+      );
+    }
+
+    case "code": {
+      const widthClass = getBlockWidthClass(block.size);
+      if (!block.code) return null;
+      return (
+        <figure className={`article-code-figure ${widthClass}`.trim()}>
+          {block.title && <div className="article-code-title font-mono text-xs px-3 py-1 bg-black/10">{block.title}</div>}
+          <pre
+            style={{
+              backgroundColor: block.backgroundColor || "#1e293b",
+              color: block.textColor || "#f8fafc",
+              padding: "16px",
+              borderRadius: "4px",
+              overflowX: "auto",
+            }}
+          >
+            <code>{block.code}</code>
+          </pre>
+        </figure>
+      );
+    }
+
     case "table": {
       const columns = block.columns ?? [];
       const rows = block.rows ?? [];
@@ -450,9 +538,10 @@ function ArticleBodyBlockView({ block }: { block: ArticleBodyBlock }) {
       );
 
       if (columnCount === 0) return null;
+      const widthClass = getBlockWidthClass(block.size);
 
       return (
-        <figure className="article-table-figure">
+        <figure className={`article-table-figure ${widthClass}`.trim()}>
           <div className="article-table-scroll">
             <table className={`article-table${block.striped ? " is-striped" : ""}`}>
               {block.hasHeader !== false && columns.length > 0 && (
@@ -485,9 +574,380 @@ function ArticleBodyBlockView({ block }: { block: ArticleBodyBlock }) {
       );
     }
 
+    case "embed": {
+      const rawSource = (block.source || block.url || block.code || "").trim();
+      if (!rawSource) return null;
+
+      // The API normalises every embed source into a typed descriptor, so the
+      // renderer never has to execute arbitrary pasted markup.
+      const embedNode = renderEmbedBlock(block);
+      const isWide = block.size === "medium";
+      const isFull = block.size === "full";
+      const figureClass = isFull
+        ? "article-embed-figure article-full-wide-media"
+        : isWide
+        ? "article-embed-figure article-wide-media"
+        : "article-embed-figure";
+
+      return (
+        <figure className={figureClass}>
+          {block.caption && block.captionPosition === "top" && (
+            <figcaption className="article-embed-caption mb-2">{block.caption}</figcaption>
+          )}
+          {embedNode}
+          {block.caption && block.captionPosition !== "top" && (
+            <figcaption className="article-embed-caption mt-2">{block.caption}</figcaption>
+          )}
+        </figure>
+      );
+    }
+
+    case "related": {
+      const widthClass = getBlockWidthClass(block.size);
+      return (
+        <aside className={`article-related-figure ${widthClass}`.trim()}>
+          <h4 className="article-related-title font-bold text-lg mb-2">{block.heading || "Related Coverage"}</h4>
+        </aside>
+      );
+    }
+
+    case "ad": {
+      const widthClass = getBlockWidthClass(block.size);
+      return (
+        <aside className={`article-ad-figure ${widthClass}`.trim()}>
+          {block.imageUrl && <img src={block.imageUrl} alt={block.title || "Advertisement"} className="w-full h-auto d-block rounded" />}
+          {block.title && <h4 className="article-ad-title font-bold mt-2">{block.title}</h4>}
+          {block.description && <p className="article-ad-desc text-sm mt-1">{block.description}</p>}
+          {block.linkUrl && (
+            <a href={block.linkUrl} target="_blank" rel="noopener noreferrer" className="article-ad-button inline-block mt-2 font-medium underline">
+              {block.buttonText || "Learn More"}
+            </a>
+          )}
+        </aside>
+      );
+    }
+
     default:
       return null;
   }
+}
+
+type EmbedBlock = Extract<ArticleBodyBlock, { type: "embed" }>;
+
+/** Only render real URLs as links; plain text must never become a dead `href`. */
+function safeEmbedHref(url?: string): string | undefined {
+  const trimmed = (url || "").trim();
+  return /^(?:https?:\/\/|mailto:|tel:|\/\/)/i.test(trimmed) ? trimmed : undefined;
+}
+
+function renderEmbedLinkCard(url?: string, label = "View embedded content"): React.ReactNode {
+  const href = safeEmbedHref(url);
+
+  if (!url || !href) {
+    return (
+      <div className="article-embed-link-card">
+        {url || "This embed could not be rendered."}
+      </div>
+    );
+  }
+
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="article-embed-link-card">
+      {label !== "View embedded content" ? `${label}: ` : ""}
+      {url}
+    </a>
+  );
+}
+
+/** Renders an embed block into the appropriate HTML element. */
+function renderEmbedBlock(block: EmbedBlock): React.ReactNode {
+  const source = (block.source || block.url || block.code || "").trim();
+  if (!source) return null;
+
+  const kind = block.embedType;
+  const embedUrl = block.embedUrl;
+  const height = block.embedHeight;
+
+  if (kind === "html") {
+    if (!block.embedHtml) {
+      return renderEmbedLinkCard(block.embedRawUrl);
+    }
+
+    return (
+      <div
+        className="article-embed-html"
+        dangerouslySetInnerHTML={{ __html: block.embedHtml }}
+      />
+    );
+  }
+
+  if (kind === "iframe" && embedUrl) {
+    return (
+      <div
+        className="article-embed-generic-frame"
+        style={
+          block.embedAspectRatio
+            ? { aspectRatio: block.embedAspectRatio }
+            : { height: height ?? 400 }
+        }
+      >
+        <iframe
+          src={embedUrl}
+          className="article-embed-iframe"
+          title={block.embedProvider || "Embedded content"}
+          frameBorder={0}
+          loading="lazy"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  if (kind === "instagram-post" && embedUrl) {
+    return (
+      <div className="article-embed-instagram-wrapper" style={{ height: height ?? 780 }}>
+        <iframe
+          src={embedUrl}
+          className="article-embed-iframe article-embed-instagram"
+          title="Instagram post"
+          frameBorder={0}
+          scrolling="no"
+          loading="lazy"
+          allowTransparency
+          allow="encrypted-media"
+        />
+      </div>
+    );
+  }
+
+  if (kind === "twitter-post" && embedUrl) {
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-twitter"
+        title="X post"
+        frameBorder={0}
+        scrolling="no"
+        loading="lazy"
+        style={{ height: height ?? 480 }}
+      />
+    );
+  }
+
+  if (kind === "facebook-post" || kind === "facebook-profile") {
+    if (!embedUrl) {
+      return renderEmbedLinkCard(block.embedRawUrl, "View on Facebook");
+    }
+
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-facebook-post"
+        title={kind === "facebook-post" ? "Facebook post" : "Facebook page"}
+        frameBorder={0}
+        scrolling="no"
+        loading="lazy"
+        allowTransparency
+        allow="encrypted-media"
+        style={{ height: height ?? (kind === "facebook-post" ? 700 : 500) }}
+      />
+    );
+  }
+
+  if ((kind === "youtube" || kind === "vimeo") && embedUrl) {
+    return (
+      <div className="article-embed-youtube-wrapper" style={{ aspectRatio: block.embedAspectRatio || "16 / 9" }}>
+        <iframe
+          src={embedUrl}
+          className="article-embed-iframe"
+          title={block.embedProvider || "Video"}
+          loading="lazy"
+          style={{ border: 0 }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  if ((kind === "spotify" || kind === "soundcloud") && embedUrl) {
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-spotify"
+        title={block.embedProvider || "Audio player"}
+        loading="lazy"
+        style={{ height: height ?? (kind === "spotify" ? 352 : 166), border: 0, borderRadius: 8 }}
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      />
+    );
+  }
+
+  if (kind === "tiktok-post" && embedUrl) {
+    return (
+      <div className="article-embed-instagram-wrapper" style={{ height: height ?? 739 }}>
+        <iframe
+          src={embedUrl}
+          className="article-embed-iframe article-embed-tiktok"
+          title="TikTok video"
+          frameBorder={0}
+          scrolling="no"
+          loading="lazy"
+          allow="encrypted-media; picture-in-picture; clipboard-write"
+        />
+      </div>
+    );
+  }
+
+  if (kind) {
+    return renderEmbedLinkCard(block.embedRawUrl || source);
+  }
+
+  // Legacy payloads without parser metadata: keep the URL heuristics below.
+  if (
+    source.startsWith("<") ||
+    source.includes("<iframe") ||
+    source.includes("<blockquote") ||
+    source.includes("<div")
+  ) {
+    const fallbackUrl = (source.match(/https?:\/\/[^\s"'<>]+/i) || [])[0];
+    return renderEmbedLinkCard(fallbackUrl);
+  }
+
+  // Normalize URL
+  let url = source;
+  if (!/^https?:\/\//i.test(url) && (url.startsWith("www.") || url.includes("."))) {
+    url = `https://${url}`;
+  }
+
+  // Instagram Post / Reel
+  const instaPost = url.match(/instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/i);
+  if (instaPost?.[1]) {
+    const embedUrl = `https://www.instagram.com/p/${instaPost[1]}/embed/captioned/`;
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-instagram"
+        frameBorder={0}
+        scrolling="no"
+        allowTransparency
+        allow="encrypted-media"
+      />
+    );
+  }
+
+  // X / Twitter Post
+  const twitterPost = url.match(/(?:twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/([0-9]+)/i);
+  if (twitterPost?.[1]) {
+    const embedUrl = `https://platform.twitter.com/embed/Tweet.html?id=${twitterPost[1]}`;
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-twitter"
+        frameBorder={0}
+        scrolling="no"
+      />
+    );
+  }
+
+  // Facebook Post / Video / Reel
+  const fbPost = url.match(
+    /facebook\.com\/(?:[^/]+\/(?:posts|videos|photos|reel)\/[^?#]+|photo[?][^#]*fbid=[\d]+|watch[/?][^#]*v=[\d]+|reel\/[\d]+)/i
+  );
+  if (fbPost) {
+    const embedUrl = `https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&show_text=true&adapt_container_width=true`;
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-facebook-post"
+        frameBorder={0}
+        scrolling="no"
+        allowTransparency
+        allow="encrypted-media"
+      />
+    );
+  }
+
+  // Facebook Profile / Page
+  const fbProfile = url.match(/facebook\.com\/([a-zA-Z0-9._-]+)\/?(?:[?#].*)?$/i);
+  const fbReserved = ["watch","groups","events","marketplace","stories","gaming","live","help","login","sharer","photo","reel"];
+  if (fbProfile?.[1] && !fbReserved.includes(fbProfile[1].toLowerCase())) {
+    const embedUrl = `https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(url)}&tabs=timeline&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true`;
+    return (
+      <iframe
+        src={embedUrl}
+        className="article-embed-iframe article-embed-facebook-profile"
+        frameBorder={0}
+        scrolling="no"
+        allowTransparency
+        allow="encrypted-media"
+      />
+    );
+  }
+
+  // YouTube
+  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([A-Za-z0-9_-]{11})/i);
+  if (yt?.[1]) {
+    return (
+      <div className="article-embed-youtube-wrapper">
+        <iframe
+          src={`https://www.youtube.com/embed/${yt[1]}`}
+          className="article-embed-iframe"
+          style={{ border: 0 }}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  // Vimeo
+  const vimeo = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/i);
+  if (vimeo?.[1]) {
+    return (
+      <div className="article-embed-youtube-wrapper">
+        <iframe
+          src={`https://player.vimeo.com/video/${vimeo[1]}`}
+          className="article-embed-iframe"
+          style={{ border: 0 }}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+
+  // Spotify
+  const spotify = url.match(/open\.spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/i);
+  if (spotify?.[1] && spotify?.[2]) {
+    const h = spotify[1] === "track" ? 152 : 352;
+    return (
+      <iframe
+        src={`https://open.spotify.com/embed/${spotify[1]}/${spotify[2]}`}
+        className="article-embed-iframe article-embed-spotify"
+        style={{ height: h, border: 0, borderRadius: 8 }}
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+      />
+    );
+  }
+
+  // Generic link card
+  const genericHref = safeEmbedHref(url);
+  if (!genericHref) {
+    return <div className="article-embed-link-card">{url}</div>;
+  }
+
+  return (
+    <a
+      href={genericHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="article-embed-link-card"
+    >
+      {url}
+    </a>
+  );
 }
 
 /* ── Metadata ───────────────────────────────────────────────────────────── */
